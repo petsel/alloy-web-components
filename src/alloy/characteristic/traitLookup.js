@@ -1,7 +1,8 @@
 import { withFetching } from "./trait/fetching";
 import { withRoutes } from "./trait/routed";
 
-export default Object.freeze({
+const /** @type TraitLookup */ initialTraitLookup = {
   fetching: withFetching,
   routed: withRoutes,
-});
+}; 
+export default Object.freeze(initialTraitLookup);
