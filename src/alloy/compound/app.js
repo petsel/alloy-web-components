@@ -1,5 +1,4 @@
-import { isFunction } from '../../utility/type-detection';
-import { BaseAlloy, alloy } from './base/alloy';
+import { BaseAlloy, alloy, interconnect } from './base/alloy';
 
 export class App extends BaseAlloy {
   #state;
@@ -8,22 +7,17 @@ export class App extends BaseAlloy {
 
   constructor(connect) {
     // - a provided `connect` method/function indicates
-    //   the sub-classing of the `Page` type itself.
+    //   the sub-classing of the `App` type itself.
 
-    const compoundData = {};
+    const compoundData = {/* state, traits, internals */};
 
     super(alloy.bind(compoundData));
 
-    if (isFunction(connect)) {
-      // - connect/channel the compound's data due to sub-classing.
+    interconnect(compoundData, connect, ({ state, traits, internals }) => {
 
-      connect(compoundData);
-    } else {
-      // - no sub-classing ... assign compound data e.g. as private properties.
-
-      this.#state = compoundData.state;
-      this.#traits = compoundData.traits;
-      this.#internals = compoundData.internals;
+      this.#state = state;
+      this.#traits = traits;
+      this.#internals = internals;
 
       this.#state.compoundName = this.localName;
 
@@ -32,6 +26,6 @@ export class App extends BaseAlloy {
         traits: this.#traits,
         internals: this.#internals,
       });
-    }
+    });
   }
 }

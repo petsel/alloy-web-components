@@ -6,6 +6,26 @@ import { withAcquireTraits } from './casting';
 
 const compoundRegistry = new WeakMap();
 
+function handleCompoundDataAssignement(compoundData, connectSuper, connectCompound) {
+  if (isFunction(connectSuper)) {
+
+    // - achieve compound-data connection by forwarding/channeling the data to
+    //   the `connect` method which has been provided with the `constructor`'s
+    //   invocation, thus indicating the sub-classing clause/case.
+    connectSuper(compoundData);
+
+  } else {
+
+    // - no sub-classing ... achieve compound-data connection by passing the
+    //   data to the instance's own `connect` lambda-expression, an ad-hoc
+    //   provided/created arrow-function expression which for instance is
+    //   capable of handling the assignment of compound-data properties to
+    //   private class properties.
+    connectCompound(compoundData);
+  }
+}
+export const interconnect = handleCompoundDataAssignement; 
+
 function bindCompoundData({ state, traits, internals }) {
   Object.assign(this, {
     state,
@@ -20,7 +40,7 @@ class Microstructure extends HTMLElement {
   // - a microstructure ...
   //
   //    - is not a homogeneous (single phase) alloy,
-  //    - but a heterogeneous (multi-phase/polyphase) alloy.
+  //    - but a polynary heterogeneous (polyphase/multi-phase) alloy.
 
   constructor(connect) {
     super();
