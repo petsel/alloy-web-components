@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <title>Alloy Web-Component Playground</title>
+
+    <script type="module" src="/main.js"></script>
+  </head>
+
+  <body>
+    <h1>Alloy Web-Component Playground</h1>
+
+    <alloy-router role="" for="festival-app">
+      <alloy-route></alloy-route>
+      <alloy-route></alloy-route>
+      <alloy-route></alloy-route>
+      <alloy-route></alloy-route>
+    </alloy-router>
+
+    <alloy-app id="festival-app">
+      <alloy-page
+        role="page"
+        traits="routed fetching"
+        route="/events"
+        fetch="/data/v1/events"
+      >
+        event overview page
+      </alloy-page>
+
+      <alloy-page
+        role="page"
+        traits="routed fetching"
+        route="/events/:event"
+        fetch="/data/v1/events/:event"
+      >
+        specifc event page
+      </alloy-page>
+
+      <alloy-page
+        role="page"
+        traits="routed fetching"
+        route="/bands"
+        fetch="/data/v1/bands"
+      >
+        band overview page
+      </alloy-page>
+
+      <alloy-page
+        role="page"
+        traits="routed fetching"
+        route="/bands/:band"
+        fetch="/data/v1//bands/:band"
+      >
+        specifc band page
+      </alloy-page>
+    </alloy-app>
+  </body>
+</html>
