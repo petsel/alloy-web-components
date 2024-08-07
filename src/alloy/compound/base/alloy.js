@@ -6,7 +6,7 @@ import { isFunction } from '../../../utility/type-detection';
 import { attachInternals, enableWaiAria, elementInternalsRegistry as internalsRegistry  } from '../../characteristic/base/aria-enabled';
 import { acquireTraits, traitRegistry } from './casting';
 
-import { trusted as trustedEvent } from './event';
+import { event as trustedEvent } from './trusted';
 
 
 const isValidCompoundLifeCycleEvent = trustedEvent.isValidLifeCycle;
@@ -78,14 +78,14 @@ export const alloy = bindCompoundData;
  *  the sub-classing of `Microstructure` respectively `BaseAlloy` where the
  *  latter is just the alias name of the former.
  * 
- *  `Microstructure` itself does sub-class respectively extend `HTMLElement`.
+ *  `Microstructure` itself does sub-class respectively extends `HTMLElement`.
  *
  * @class
  *  @extends HTMLElement
  */
 class Microstructure extends HTMLElement {
 
-  #trustedEvent;
+  // #trustedEvent;
 
   /**
    * @this {Microstructure}
@@ -164,7 +164,7 @@ class Microstructure extends HTMLElement {
 
       connect(microstructureData);
     }
-    compound.#trustedEvent = trustedOptions.event;
+    // compound.#trustedEvent = trustedOptions.event;
 
     compound.addEventListener('compound-connected', handleCompoundLifeCycleEvent);
     compound.addEventListener('compound-disconnected', handleCompoundLifeCycleEvent);
@@ -174,7 +174,7 @@ class Microstructure extends HTMLElement {
 
   connectedCallback() {
     const compound = this;
-    const { Event } = compound.#trustedEvent;
+    const { Event } = trustedEvent;
 
     compound.dispatchEvent(
       new Event('compound-connected'/*, {
@@ -189,7 +189,7 @@ class Microstructure extends HTMLElement {
   }
   disconnectedCallback() {
     const compound = this;
-    const { Event } = compound.#trustedEvent;
+    const { Event } = trustedEvent;
 
     compound.dispatchEvent(
       new Event('compound-disconnected'),
@@ -201,7 +201,7 @@ class Microstructure extends HTMLElement {
   }
   adoptedCallback() {
     const compound = this;
-    const { Event } = compound.#trustedEvent;
+    const { Event } = trustedEvent;
 
     compound.dispatchEvent(
       new Event('compound-adopted'),
@@ -213,7 +213,7 @@ class Microstructure extends HTMLElement {
   }
   attributeChangedCallback(name, recent, current) {
     const compound = this;
-    const { CustomEvent } = compound.#trustedEvent;
+    const { CustomEvent } = trustedEvent;
 
     compound.dispatchEvent(
       new CustomEvent('compound-attribute-changed', {

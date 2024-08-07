@@ -1,4 +1,4 @@
-import { trusted as trustedEvent } from '../../compound/base/event';
+import { event as trustedEvent } from '../../compound/base/trusted';
 
 
 const isValidCompoundLifeCycleEvent = trustedEvent.isValidLifeCycle;

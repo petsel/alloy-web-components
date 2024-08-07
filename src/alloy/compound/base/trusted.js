@@ -1,5 +1,3 @@
-// const trustedCompoundEventId = Symbol('trusted-compound-event');
-
 class TrustedCompoundEvent extends Event {
   constructor(...args) {
     super(...args);
@@ -23,8 +21,9 @@ function isValidCompoundLifeCycleEvent(evt) {
     (evt.target === evt.currentTarget)
   );
 }
+// const trustedCompoundEventId = Symbol('trusted-compound-event');
 
-export const trusted = {
+export const event = {
   Event: TrustedCompoundEvent,
   CustomEvent: TrustedCompoundCustomEvent,
   isTrusted: isTrustedCompoundEvent,
