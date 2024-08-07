@@ -1,33 +1,53 @@
 /**
- * @typedef {DataObject} CompoundData
+ * @typedef {Object} RemixHistoryLocation
  * 
- *  @property {DataObject} state
- *  @property {TraitIndex} traits
- *  @property {ElementInternals} internals
- */
-
-
-// {DataObject}
-/**
- * The [`Object`]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures}
- * based representation of structured pure data.
- *
- * @typedef {Object<string, (boolean|number|string|Array<DataObject>|Set<DataObject>|Map<any, DataObject>|DataObject)>} DataObject
- */
-
-
-/**
- * @typedef {Object<string, DataObject>} AriaConfig
+ *  @property {string} pathname
+ *  @property {string} search
+ *  @property {string} hash
+ *  @property {Object} state
  */
 
 /**
- * @typedef {Object<string, ApplicapleType>} TraitLookup
+ * @typedef {'POP' | 'PUSH' | 'REPLACE'} RemixHistoryAction
+ */
+
+/**
+ * @typedef {Object} RemixHistory
+ * 
+ *  @property {RemixHistoryLocation} location
+ *  @property {RemixHistoryAction} action
+ *  @property {(path: string, state?: Object) => void} push
+ *  @property {(path: string, state?: Object) => void} replace
+ *  @property {() => void} go
+ *  @property {(n: number) => void} back
+ *  @property {(n: number) => void} forward
+ *  @property {(listener: (location: RemixHistoryLocation, action: RemixHistoryAction) => void) => () => void} listen
+ *  @property {(prompt: string | ((location: RemixHistoryLocation, action: RemixHistoryAction) => string)) => () => void} block
+ *  @property {(location: RemixHistoryLocation) => string} createHref
+ */
+
+/**
+ * @typedef {RemixHistory} RemixBrowserHistory
+ *  @external RemixBrowserHistory
+ *   @see [`history :: docs :: api-reference`]{@link https://github.com/remix-run/history/blob/dev/docs/api-reference.md#createbrowserhistory}
  */
 
 
 /**
- * @typedef {Set<ApplicapleType>} TraitIndex
+ * @external HTMLElement
+ *  @see [`HTML DOM API :: HTMLElement`]{@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement}
  */
+
+/**
+ * @external ElementInternals
+ *  @see [`Web components :: ElementInternals`]{@link https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals}
+ */
+
+
+/**
+ * @typedef {WeakMap<Microstructure, ElementInternals>} InternalsRegistry
+ */
+
 
 /**
  *  Always a function which has to be applied exclusively via `call` or
@@ -41,39 +61,134 @@
  * @typedef {Function} ApplicapleType
  */
 
-
 /**
- * @typedef {WeakMap<Microstructure, ElementInternals>} InternalsRegistry
+ * @typedef {Set<ApplicapleType>} TraitIndex
  */
 
-/**
- * @external ElementInternals
- *  @see [`Web components::ElementInternals`]{@link https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals}
- */
 
+// {DataObject}
 /**
- *  In terms of the _**alloy**_ analogy borrowed from metallurgic terms,
- *  `Microstructure` is the base-alloy of every yet to be written future
- *  custom-element type/class.
+ * The [`Object`]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object}
+ * based representation of [structured data]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures}.
  * 
- *  And since this base-alloy serves as a mental abstraction for custom
- *  composable alloys, any such microstructure already is a mix of more
- *  than just two components/ingredients, thus, in terms of alloys the
- *  mixed compound/product is not a homogeneous (single phase) alloy,
- *  but a polynary heterogeneous (polyphase/multi-phase) alloy.
- *  
- *  From the programming perspective every instance of a yet to be written
- *  future custom-element type/class will have a `Microstructure` instance
- *  as its prototype since the **Alloy Custom Elements** library encourages
- *  the sub-classing of `Microstructure` respectively `BaseAlloy` where the
- *  latter is just the alias name of the former.
- * 
- *  `Microstructure` itself does sub-class respectively extend `HTMLElement`.
+ *  @see[`References :: JavaScript :: Reference Standard built-in objects :: Object`]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object}
+ *  @see[`References :: JavaScript :: JavaScript data types and data structures`]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures}
  *
- * @typedef {HTMLElement} Microstructure
+ * @typedef {Object<string, (boolean|number|string|Array<DataObject>|Set<DataObject>|Map<any, DataObject>|DataObject)>} DataObject
+ */
+
+
+/**
+ * @typedef {Object<string, ApplicapleType>} TraitLookup
  */
 
 /**
- * @external HTMLElement
- *  @see [`HTML DOM API::HTMLElement`]{@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement}
+ * @typedef {Object<string, DataObject>} AriaConfig
+ */
+
+
+/**
+ * @typedef {Object} TraitApplicationOptions
+ * 
+ *  @property {DataObject} compoundState
+ *  @property {TrustedOptions} trustedOptions
+ *  @property {ElementInternals} elementInternals
+ *  @property {RemixBrowserHistory} browserHistory
+ */
+
+/**
+ * @typedef {Object} TraitRegistrationOptions
+ * 
+ *  @property {Microstructure} compound
+ *  @property {DataObject} compoundState
+ *  @property {TrustedOptions} trustedOptions
+ *  @property {ElementInternals} elementInternals
+ *  @property {RemixBrowserHistory} browserHistory
+ *  @property {TraitLookup} customTraitLookup
+ */
+
+/**
+ * @typedef {Object} WaiAriaEnablingOptions
+ * 
+ *  @property {Microstructure} compound
+ *  @property {DataObject} compoundState
+ *  @property {ElementInternals} elementInternals
+ *  @property {AriaConfig} customAriaConfig
+ */
+
+
+/**
+ * @external Event
+ *   @see[`Web APIs :: Event`]{@link https://developer.mozilla.org/en-US/docs/Web/API/Event}
+ */
+
+/**
+ * @external CustomEvent
+ *  @see [`Web APIs :: CustomEvent`]{@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent}
+ */
+
+/**
+ * @typedef {Event} TrustedCompoundEvent
+ *  @extends Event
+ */
+
+/**
+ * @typedef {CustomEvent} TrustedCompoundCustomEvent
+ *  @extends CustomEvent
+ */
+
+/**
+ * @typedef {Object} TrustedEventOptions
+ * 
+ *  @property {TrustedCompoundEvent} Event
+ *  @property {TrustedCompoundCustomEvent} CustomEvent
+ *  @property {Function} isTrusted
+ *  @property {Function} isValidLifeCycle
+ */
+
+/**
+ * @typedef {Object} TrustedOptions
+ * 
+ *  @property {TrustedEventOptions} event
+ */
+
+
+/**
+ * @typedef {Object} CompoundData
+ *  - Any property of this data-structure, which at a compound's
+ *    instantiation time has been injected into any involved sub-
+ *    or super-class respectively into any applied trait, is/gets
+ *    shared amongts any involved sub-classed prototype and any
+ *    applied trait througout a custom-elemnt's entire lifetime.
+ *  - The data-structure itself as well as any of its properties
+ *    are supposed to be treated as protected, which means, none
+ *    should ever be exposed into public as writable.
+ *  @property {DataObject} state
+ *  @property {TrustedOptions} trusted
+ *  @property {ElementInternals} internals
+ *  @property {RemixBrowserHistory} history
+ */
+
+// /**
+//  * @typedef {Object} MicrostructureData
+//  *  @extends CompoundData
+//  *  
+//  *  @property {TraitIndex} traits
+//  */
+
+/**
+ * @typedef {Object} MicrostructureData
+ *  - Any property of this data-structure, which at a compound's
+ *    instantiation time has been injected into any involved sub-
+ *    or super-class respectively into any applied trait, is/gets
+ *    shared amongts any involved sub-classed prototype and any
+ *    applied trait througout a custom-elemnt's entire lifetime.
+ *  - The data-structure itself as well as any of its properties
+ *    are supposed to be treated as protected, which means, none
+ *    should ever be exposed into public as writable.
+ *  @property {DataObject} state
+ *  @property {TrustedOptions} trusted
+ *  @property {ElementInternals} internals
+ *  @property {RemixBrowserHistory} history
+ *  @property {TraitIndex} traits
  */

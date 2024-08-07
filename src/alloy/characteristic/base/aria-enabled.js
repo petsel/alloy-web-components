@@ -31,7 +31,7 @@ export const /** @type AriaConfig */ initialAriaConfig = Object.freeze({
 });
 
 
-const /** @type InternalsRegistry */ elementInternalsRegistry = new WeakMap;
+export const /** @type InternalsRegistry */ elementInternalsRegistry = new WeakMap;
 
 /**
  * @param {Microstructure} compound 
@@ -55,18 +55,16 @@ export function attachInternals(compound) {
 }
 
 /**
- * @param {Microstructure} compound 
- * @param {DataObject} compoundState 
- * @param {ElementInternals} elementInternals 
- * @param {AriaConfig} customAriaConfig 
+ * @param {Microstructure} compound
+ * @param {CompoundData} [compoundData={}]
+ * @param {AriaConfig} [customAriaConfig]
  */
-export function enableWaiAria(
-  compound, compoundState, elementInternals, customAriaConfig
-) {
-  const ariaConfig = Object.assign({}, initialAriaConfig, customAriaConfig);
+export function enableWaiAria(compound, compoundData = {}, customAriaConfig) {
+  const /** @type AriaConfig */ ariaConfig =
+    Object.assign(Object.create(null), initialAriaConfig, customAriaConfig);
 
   console.log(
     'enableWaiAria ...',
-    { compound, compoundState, elementInternals, ariaConfig, customAriaConfig },
+    { compound, compoundData, ariaConfig, customAriaConfig },
   );
 }

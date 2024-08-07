@@ -3,15 +3,14 @@ import { isFunction } from '../../../utility/type-detection';
 import initialTraitLookup from '../../characteristic/traitLookup';
 
 
-const traitRegistry = new WeakMap;
+export const traitRegistry = new WeakMap;
 
 /**
- * @param {Microstructure} compound
- * @param {DataObject} compoundState
- * @param {ElementInternals} elementInternals
  * @param {ApplicapleType} trait
+ * @param {Microstructure} compound
+ * @param {CompoundData} compoundData
  */
-function applyTrait(compound, compoundState, elementInternals, trait) {
+function applyTrait(trait, compound, compoundData) {
   if (isFunction(trait)) {
     if (!traitRegistry.has(compound)) {
       traitRegistry.set(compound, new Set);
@@ -21,32 +20,32 @@ function applyTrait(compound, compoundState, elementInternals, trait) {
     if (!traitIndex.has(trait)) {
       traitIndex.add(trait);
 
-      trait.call(compound, compoundState, elementInternals);
+      trait.call(compound, compoundData);
     }
   }
 }
 
 /**
  * @param {Microstructure} compound
- * @param {DataObject} compoundState
- * @param {ElementInternals} elementInternals
- * @param {TraitLookup} customTraitLookup
- * @returns {Set<ApplicapleType>}
+ * @param {CompoundData} [compoundData={}]
+ * @param {TraitLookup} [customTraitLookup]
+ * @returns {TraitIndex}
  */
-export function acquireTraits(
-  compound, compoundState, elementInternals, customTraitLookup,
-) {
+export function acquireTraits(compound, compoundData = {}, customTraitLookup) {
   const uniqueTraitNames = new Set(
     (compound.getAttribute('traits') ?? '')
       .trim()
       .split(/\s+/)
-      .filter((traitName) => !!traitName)
+      .filter(traitName => !!traitName)
   );
-  const traitLookup = Object.assign({}, initialTraitLookup, customTraitLookup);
+  const traitLookup =
+    Object.assign(Object.create(null), initialTraitLookup, customTraitLookup);
 
-  [...uniqueTraitNames.values()].forEach((traitName) =>
-    applyTrait(compound, compoundState, elementInternals, traitLookup[traitName])
-  );
+  [...uniqueTraitNames.values()]
+    .forEach(traitName =>
+
+      applyTrait(traitLookup[traitName], compound, compoundData)
+    );
 
   return traitRegistry.get(compound) ?? new Set;
 }

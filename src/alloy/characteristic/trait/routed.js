@@ -1,21 +1,26 @@
+import { trusted as trustedEvent } from '../../compound/base/event';
+
+
+const isValidCompoundLifeCycleEvent = trustedEvent.isValidLifeCycle;
+
+
 /**
- * @param {DataObject} state
- *  - A custom-element's internal state object
- *    which, througout a custom-elemnt's entire
- *    lifetime, gets shared amongts any involved
- *    sub-classed prototype and any applied trait.
- *  - This object is supposed to be treated as
- *    protected which means it should never be
- *    exposed into public as writable.
- * @param {ElementInternals} internals
- *  - A custom-element's `internals` object
- *    which, througout a custom-elemnt's entire
- *    lifetime, gets shared amongts any involved
- *    sub-classed prototype and any applied trait.
- *  - This object is supposed to be treated as
- *    protected which means it should never be
- *    exposed into public as writable.
+ * @this {Microstructure}
+ * @param {CompoundData} compoundData
  */
-export function withRoutes(state, internals) {
+export function withRoutes(compoundData) {
   const compound = this;
+
+  // const { /* Event, CustomEvent, */ isValidLifeCycle: isValidCompoundLifeCycleEvent } = compoundData.trusted.event;
+
+  compound.setAttribute('hidden', '');
+
+  console.log('withRoutes');
+
+  compound.addEventListener('compound-connected', evt => {
+    if (isValidCompoundLifeCycleEvent(evt)) {
+
+      console.log({ node: this, evt })
+    }
+  });
 }

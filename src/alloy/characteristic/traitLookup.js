@@ -1,5 +1,5 @@
-import { withFetching } from "./trait/fetching";
-import { withRoutes } from "./trait/routed";
+import { withFetching } from './trait/fetching';
+import { withRoutes } from './trait/routed';
 
 const /** @type TraitLookup */ initialTraitLookup = {
   fetching: withFetching,

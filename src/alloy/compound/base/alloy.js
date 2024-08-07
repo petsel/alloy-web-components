@@ -1,11 +1,31 @@
+import { createBrowserHistory } from 'history';
+
 import { isFunction } from '../../../utility/type-detection';
 
 // import { withElementInternalsSham } from '../../characteristic/sham/internalized';
-import { attachInternals, enableWaiAria } from '../../characteristic/base/aria-enabled';
-import { acquireTraits } from './casting';
+import { attachInternals, enableWaiAria, elementInternalsRegistry as internalsRegistry  } from '../../characteristic/base/aria-enabled';
+import { acquireTraits, traitRegistry } from './casting';
+
+import { trusted as trustedEvent } from './event';
+
+
+const isValidCompoundLifeCycleEvent = trustedEvent.isValidLifeCycle;
+
+function handleCompoundLifeCycleEvent(evt) {
+  // debugger;
+  if (!isValidCompoundLifeCycleEvent(evt)) {
+
+    evt.stopPropagation();
+    evt.stopImmediatePropagation();
+  }
+}
+const compoundRegistry = new WeakMap();
+
+const /** @type RemixBrowserHistory */ browserHistory = createBrowserHistory();
+
 
 /**
- * @param {CompoundData} compoundData
+ * @param {MicrostructureData} compoundData
  * @param {Function} connectSuper
  * @param {Function} connectCompound
  */
@@ -32,33 +52,40 @@ function handleCompoundDataAssignement(compoundData, connectSuper, connectCompou
 export const interconnect = handleCompoundDataAssignement; 
 
 /**
- * @param {CompoundData} compoundData
- * 
- * @param {DataObject} compoundData.state
- *  The custom-element's protected `state` data.
- * @param {Set<ApplicapleType>} compoundData.traits
- *  The custom-element's protected `traits` set.
- * @param {ElementInternals} compoundData.internals
- *  The custom-element's protected `internals` property.
+ * @this {Microstructure}
+ * @param {MicrostructureData} [compoundData={}]
  */
-function bindCompoundData(/** @type CompoundData */{ state, traits, internals } = {}) {
-  Object.assign(this, {
-    state,
-    traits,
-    internals,
-  });
+function bindCompoundData(compoundData = {}) {
+  Object.assign(this, compoundData);
 }
 export const alloy = bindCompoundData;
 
 
-const compoundRegistry = new WeakMap();
+/**
+ *  In terms of the _**alloy**_ analogy borrowed from metallurgic terms,
+ *  `Microstructure` is the base-alloy of every yet to be written future
+ *  custom-element type/class.
+ * 
+ *  And since this base-alloy serves as a mental abstraction for custom
+ *  composable alloys, any such microstructure already is a mix of more
+ *  than just two components/ingredients, thus, in terms of alloys the
+ *  mixed compound/product is not a homogeneous (single phase) alloy,
+ *  but a polynary heterogeneous (polyphase/multi-phase) alloy.
+ *  
+ *  From the programming perspective every instance of a yet to be written
+ *  future custom-element type/class will have a `Microstructure` instance
+ *  as its prototype since the **Alloy Custom Elements** library encourages
+ *  the sub-classing of `Microstructure` respectively `BaseAlloy` where the
+ *  latter is just the alias name of the former.
+ * 
+ *  `Microstructure` itself does sub-class respectively extend `HTMLElement`.
+ *
+ * @class
+ *  @extends HTMLElement
+ */
+class Microstructure extends HTMLElement {
 
-class /** @type Microstructure */  Microstructure extends HTMLElement {
-  //
-  // - a microstructure ...
-  //
-  //    - is not a homogeneous (single phase) alloy,
-  //    - but a polynary heterogeneous (polyphase/multi-phase) alloy.
+  #trustedEvent;
 
   /**
    * @this {Microstructure}
@@ -68,53 +95,138 @@ class /** @type Microstructure */  Microstructure extends HTMLElement {
     super();
 
     const compound = this;
+    const /** @type DataObject */ compoundState = Object.assign(
 
-    
-    const /** @type DataObject */ compoundState = {
-      //
       // - the compound's protected, shared compound-specific
       //   state throughout the compound's entire livetime,
       //   regardless of either compund-type sub-classing
       //   or trait/mixin based compund-type composition.
-      //
-      // - assign some initial key value pairs if necessary.
-      //
-    }; /*
 
+      Object.create(null), {
+ 
+        // - assign some initial key value pairs if necessary.
+      },
+    );
+
+    /*
     // - assure some compatibility across element internals features. 
     withElementInternalsSham.call(compound);
     */
-    const elementInternals = attachInternals(compound);
+
+    const /** @type TrustedOptions */ trustedOptions = Object.freeze({
+      event: trustedEvent,
+    });
+    const /** @type ElementInternals */ elementInternals =
+      attachInternals(compound);
+
+    const /** @type CompoundData */ compoundData = Object.freeze(
+      Object.assign(
+        Object.create(null), {
+          state: compoundState,
+          trusted: trustedOptions,
+          internals: elementInternals,
+          history: browserHistory,
+        },
+      ),
+    );
 
     // - `acquireTraits` reads and applies all of a compound's further
     //   charcteistics/traits/mixins/roles/behaviors by reading each
     //   its corresponding name from the compound's `traits` attribute.
-    const acquiredTraits = acquireTraits(
-      compound, compoundState, elementInternals, /* customTraitLookup, */
+
+    const /** @type TraitIndex */ acquiredTraits =
+      acquireTraits(compound, compoundData, /* customTraitLookup, */);
+
+    const /** @type MicrostructureData */ microstructureData = Object.freeze(
+      Object.assign(
+        Object.create(null),
+        compoundData, {
+          traits: acquiredTraits,
+        },
+      ),
     );
 
     // - `enableWaiAria` ...
-    enableWaiAria(
-      compound, compoundState, elementInternals, /* customAriaConfig, */
-    );
+
+    enableWaiAria(compound, compoundData /* , customAriaConfig */);
 
     compoundRegistry.set(
       compound,
       new Map([
         ['state', compoundState],
-        ['traits', acquiredTraits],
+        ['trusted', trustedOptions],
         ['internals', elementInternals],
-      ])
+        ['history', browserHistory],
+        ['traits', acquiredTraits],
+      ]),
     );
-
     if (isFunction(connect)) {
-      connect({
-        state: compoundState,
-        traits: acquiredTraits,
-        internals: elementInternals,
-      });
+
+      connect(microstructureData);
     }
+    compound.#trustedEvent = trustedOptions.event;
+
+    compound.addEventListener('compound-connected', handleCompoundLifeCycleEvent);
+    compound.addEventListener('compound-disconnected', handleCompoundLifeCycleEvent);
+    compound.addEventListener('compound-adopted', handleCompoundLifeCycleEvent);
+    compound.addEventListener('compound-attribute-changed', handleCompoundLifeCycleEvent);
   }
+
+  connectedCallback() {
+    const compound = this;
+    const { Event } = compound.#trustedEvent;
+
+    compound.dispatchEvent(
+      new Event('compound-connected'/*, {
+
+        // bubbles: false, cancelable: false, composed: false,
+        //
+        // - since the above present the default options,
+        //   one does not need to provide them explicitly.
+
+      }*/),
+    );
+  }
+  disconnectedCallback() {
+    const compound = this;
+    const { Event } = compound.#trustedEvent;
+
+    compound.dispatchEvent(
+      new Event('compound-disconnected'),
+    );
+    internalsRegistry.delete(compound);
+    traitRegistry.delete(compound);
+
+    compoundRegistry.delete(compound);
+  }
+  adoptedCallback() {
+    const compound = this;
+    const { Event } = compound.#trustedEvent;
+
+    compound.dispatchEvent(
+      new Event('compound-adopted'),
+    );
+    internalsRegistry.delete(compound);
+    traitRegistry.delete(compound);
+
+    compoundRegistry.delete(compound);
+  }
+  attributeChangedCallback(name, recent, current) {
+    const compound = this;
+    const { CustomEvent } = compound.#trustedEvent;
+
+    compound.dispatchEvent(
+      new CustomEvent('compound-attribute-changed', {
+        detail: {
+          name,
+          value: {
+            recent,
+            current,
+          },
+        },
+      }),
+    );
+  }/*
 
   getState() {
     return Object.freeze(compoundRegistry.get(this)?.get?.('state'));
@@ -122,8 +234,14 @@ class /** @type Microstructure */  Microstructure extends HTMLElement {
   getTraits() {
     return Object.freeze(compoundRegistry.get(this)?.get?.('traits'));
   }
+  getTrusteds() {
+    compoundRegistry.get(this)?.get?.('trusted');
+  }
   getInternals() {
     compoundRegistry.get(this)?.get?.('internals');
   }
+  getHistory() {
+    compoundRegistry.get(this)?.get?.('history');
+  }*/
 }
 export const /** @type Microstructure */ BaseAlloy = Microstructure;
