@@ -9,23 +9,22 @@ class TrustedCompoundCustomEvent extends CustomEvent {
   }
 }
 
-function isTrustedCompoundEvent(evt) {
+function isTrustedEvent(evt) {
   return !!evt && (
     (evt instanceof TrustedCompoundCustomEvent) ||
     (evt instanceof TrustedCompoundEvent)
   );
 }
-function isValidCompoundLifeCycleEvent(evt) {
+function isTrustedOwnEvent(evt) {
   return (
-    isTrustedCompoundEvent(evt) &&
+    isTrustedEvent(evt) &&
     (evt.target === evt.currentTarget)
   );
 }
-// const trustedCompoundEventId = Symbol('trusted-compound-event');
 
-export const event = {
+export const /** @type TrustedEventOptions */ event = {
   Event: TrustedCompoundEvent,
   CustomEvent: TrustedCompoundCustomEvent,
-  isTrusted: isTrustedCompoundEvent,
-  isValidLifeCycle: isValidCompoundLifeCycleEvent,
+  isTrusted: isTrustedEvent,
+  isTrustedOwn: isTrustedOwnEvent,
 };

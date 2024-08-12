@@ -1,7 +1,7 @@
 // import { event as trustedEvent } from '../../compound/base/trusted';
 // 
 // 
-// const isValidCompoundLifeCycleEvent = trustedEvent.isValidLifeCycle;
+// const { CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
 
 
 /**
@@ -11,5 +11,5 @@
 export function withFetching(compoundData) {
   const compound = this;
 
-  // const { /* Event, CustomEvent, */ isValidLifeCycle: isValidCompoundLifeCycleEvent } = compoundData.trusted.event;
+  // const { /* Event, CustomEvent, */ isTrustedOwn: isTrustedOwnEvent } = compoundData.trusted.event;
 }

@@ -15,7 +15,7 @@ function applyTrait(trait, compound, compoundData) {
     if (!traitRegistry.has(compound)) {
       traitRegistry.set(compound, new Set);
     }
-    const /** @type TraitIndex */ traitIndex = traitRegistry.get(compound);
+    const /** @type TraitSet */ traitIndex = traitRegistry.get(compound);
 
     if (!traitIndex.has(trait)) {
       traitIndex.add(trait);
@@ -29,7 +29,7 @@ function applyTrait(trait, compound, compoundData) {
  * @param {Microstructure} compound
  * @param {CompoundData} [compoundData={}]
  * @param {TraitLookup} [customTraitLookup]
- * @returns {TraitIndex}
+ * @returns {TraitSet}
  */
 export function acquireTraits(compound, compoundData = {}, customTraitLookup) {
   const uniqueTraitNames = new Set(

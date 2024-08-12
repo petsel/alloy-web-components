@@ -12,6 +12,18 @@
  */
 
 /**
+ * @typedef {object} RemixHistoryListenerData
+ * 
+ *  @property {RemixHistoryLocation} location
+ *  @property {RemixHistoryAction} action
+ */
+
+/**
+ * @callback remixHistoryListener
+ *  @param {RemixHistoryListenerData} data
+ */
+
+/**
  * @typedef {Object} RemixHistory
  * 
  *  @property {RemixHistoryLocation} location
@@ -34,18 +46,9 @@
 
 
 /**
- * @external HTMLElement
- *  @see [`HTML DOM API :: HTMLElement`]{@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement}
- */
-
-/**
- * @external ElementInternals
- *  @see [`Web components :: ElementInternals`]{@link https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals}
- */
-
-
-/**
- * @typedef {WeakMap<Microstructure, ElementInternals>} InternalsRegistry
+ * @typedef {Object} RouteState
+ * 
+ *  @property {String} currentRoute
  */
 
 
@@ -62,7 +65,11 @@
  */
 
 /**
- * @typedef {Set<ApplicapleType>} TraitIndex
+ * @typedef {Set<ApplicapleType>} TraitSet
+ */
+
+/**
+ * @typedef {Set<String>} StringSet
  */
 
 
@@ -118,16 +125,6 @@
 
 
 /**
- * @external Event
- *   @see[`Web APIs :: Event`]{@link https://developer.mozilla.org/en-US/docs/Web/API/Event}
- */
-
-/**
- * @external CustomEvent
- *  @see [`Web APIs :: CustomEvent`]{@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent}
- */
-
-/**
  * @typedef {Event} TrustedCompoundEvent
  *  @extends Event
  */
@@ -143,7 +140,7 @@
  *  @property {TrustedCompoundEvent} Event
  *  @property {TrustedCompoundCustomEvent} CustomEvent
  *  @property {Function} isTrusted
- *  @property {Function} isValidLifeCycle
+ *  @property {Function} isTrustedOwn
  */
 
 /**
@@ -167,13 +164,14 @@
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history
+ *  @property {StringSet} observedAttrNames
  */
 
 // /**
 //  * @typedef {Object} MicrostructureData
 //  *  @extends CompoundData
 //  *  
-//  *  @property {TraitIndex} traits
+//  *  @property {TraitSet} traits
 //  */
 
 /**
@@ -190,5 +188,23 @@
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history
- *  @property {TraitIndex} traits
+ *  @property {StringSet} observedAttrNames
+ *  @property {TraitSet} traits
+ */
+
+/**
+ * @callback compoundConnector
+ *  @param {MicrostructureData} data
+ */
+
+/**
+ * @typedef {HTMLElement} Microstructure
+ *  @extends HTMLElement
+ *  @protected {CompoundData} compoundData
+ *  @protected {MicrostructureData} microstructureData
+ *  @static {Array} [observedAttributes]
+ */
+
+/**
+ * @typedef {WeakMap<Microstructure, ElementInternals>} InternalsRegistry
  */

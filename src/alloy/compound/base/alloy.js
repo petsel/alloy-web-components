@@ -3,25 +3,30 @@ import { createBrowserHistory } from 'history';
 import { isFunction } from '../../../utility/type-detection';
 
 // import { withElementInternalsSham } from '../../characteristic/sham/internalized';
-import { attachInternals, enableWaiAria, elementInternalsRegistry as internalsRegistry  } from '../../characteristic/base/aria-enabled';
+import { enableWaiAria, attachInternals, elementInternalsRegistry as internalsRegistry  } from '../../characteristic/base/aria-enabled';
 import { acquireTraits, traitRegistry } from './casting';
 
+import { complementMutationHandling } from './observed';
 import { event as trustedEvent } from './trusted';
 
 
-const isValidCompoundLifeCycleEvent = trustedEvent.isValidLifeCycle;
+const { Event, CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
+
+/** @type RemixBrowserHistory */ 
+const browserHistory = createBrowserHistory();
+
+/** @type Map<Microstructure, Map<string, MicrostructureData>> */
+export const compoundRegistry = new WeakMap;
+
 
 function handleCompoundLifeCycleEvent(evt) {
   // debugger;
-  if (!isValidCompoundLifeCycleEvent(evt)) {
+  if (!isTrustedOwnEvent(evt)) {
 
     evt.stopPropagation();
     evt.stopImmediatePropagation();
   }
 }
-const compoundRegistry = new WeakMap();
-
-const /** @type RemixBrowserHistory */ browserHistory = createBrowserHistory();
 
 
 /**
@@ -82,6 +87,8 @@ export const alloy = bindCompoundData;
  *
  * @class
  *  @extends HTMLElement
+ *  @protected {CompoundData} compoundData
+ *  @protected {MicrostructureData} microstructureData
  */
 class Microstructure extends HTMLElement {
 
@@ -126,6 +133,20 @@ class Microstructure extends HTMLElement {
           trusted: trustedOptions,
           internals: elementInternals,
           history: browserHistory,
+          /**
+           * - The set of yet to be collected and 
+           *   going to be observed attribute names.
+           * - Throughout the entire instantiation
+           *   process, which creates a chain of
+           *   prototypes, this property's value
+           *   gets aggregated while being channeled
+           *   through every involved constructor.
+           * - The fully aggregated set of attribute-
+           *   names, gets automatically assigned as
+           *   array to the static `observedAttributes`
+           *   field of the latest involved sub-class.
+           */
+          observedAttrNames: new Set,
         },
       ),
     );
@@ -134,21 +155,20 @@ class Microstructure extends HTMLElement {
     //   charcteistics/traits/mixins/roles/behaviors by reading each
     //   its corresponding name from the compound's `traits` attribute.
 
-    const /** @type TraitIndex */ acquiredTraits =
+    const /** @type TraitSet */ acquiredTraits =
       acquireTraits(compound, compoundData, /* customTraitLookup, */);
+
+    enableWaiAria(compound, compoundData /* , customAriaConfig */);
+
+    complementMutationHandling(compound, compoundData);
 
     const /** @type MicrostructureData */ microstructureData = Object.freeze(
       Object.assign(
         Object.create(null),
-        compoundData, {
-          traits: acquiredTraits,
-        },
+        compoundData,
+        { traits: acquiredTraits },
       ),
     );
-
-    // - `enableWaiAria` ...
-
-    enableWaiAria(compound, compoundData /* , customAriaConfig */);
 
     compoundRegistry.set(
       compound,
@@ -158,6 +178,7 @@ class Microstructure extends HTMLElement {
         ['internals', elementInternals],
         ['history', browserHistory],
         ['traits', acquiredTraits],
+        ['observedAttrNames', compoundData.observedAttrNames],
       ]),
     );
     if (isFunction(connect)) {
@@ -166,18 +187,15 @@ class Microstructure extends HTMLElement {
     }
     // compound.#trustedEvent = trustedOptions.event;
 
-    compound.addEventListener('compound-connected', handleCompoundLifeCycleEvent);
-    compound.addEventListener('compound-disconnected', handleCompoundLifeCycleEvent);
-    compound.addEventListener('compound-adopted', handleCompoundLifeCycleEvent);
-    compound.addEventListener('compound-attribute-changed', handleCompoundLifeCycleEvent);
+    compound.addEventListener('ca-connected', handleCompoundLifeCycleEvent);
+    compound.addEventListener('ca-disconnected', handleCompoundLifeCycleEvent);
+    compound.addEventListener('ca-adopted', handleCompoundLifeCycleEvent);
+    compound.addEventListener('ca-attr-changed', handleCompoundLifeCycleEvent);
   }
 
   connectedCallback() {
-    const compound = this;
-    const { Event } = trustedEvent;
-
-    compound.dispatchEvent(
-      new Event('compound-connected'/*, {
+    this.dispatchEvent(
+      new Event('ca-connected'/*, {
 
         // bubbles: false, cancelable: false, composed: false,
         //
@@ -189,10 +207,9 @@ class Microstructure extends HTMLElement {
   }
   disconnectedCallback() {
     const compound = this;
-    const { Event } = trustedEvent;
 
     compound.dispatchEvent(
-      new Event('compound-disconnected'),
+      new Event('ca-disconnected'),
     );
     internalsRegistry.delete(compound);
     traitRegistry.delete(compound);
@@ -201,10 +218,9 @@ class Microstructure extends HTMLElement {
   }
   adoptedCallback() {
     const compound = this;
-    const { Event } = trustedEvent;
 
     compound.dispatchEvent(
-      new Event('compound-adopted'),
+      new Event('ca-adopted'),
     );
     internalsRegistry.delete(compound);
     traitRegistry.delete(compound);
@@ -212,11 +228,8 @@ class Microstructure extends HTMLElement {
     compoundRegistry.delete(compound);
   }
   attributeChangedCallback(name, recent, current) {
-    const compound = this;
-    const { CustomEvent } = trustedEvent;
-
-    compound.dispatchEvent(
-      new CustomEvent('compound-attribute-changed', {
+    this.dispatchEvent(
+      new CustomEvent('ca-attr-changed', {
         detail: {
           name,
           value: {
