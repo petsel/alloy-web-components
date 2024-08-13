@@ -1,8 +1,8 @@
 import { withFetching } from './trait/fetching';
-import { withRoutes } from './trait/routed';
+import { withRouting } from './trait/routed';
 
 const /** @type TraitLookup */ initialTraitLookup = {
   fetching: withFetching,
-  routed: withRoutes,
+  routed: withRouting,
 }; 
 export default Object.freeze(initialTraitLookup);

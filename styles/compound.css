@@ -1,5 +1,13 @@
 [hidden],
 [hidden=""],
 [hidden="hidden"] {
-  display: block;
+  display: none;
+}
+
+alloy-page {
+  display: none;
+
+  &:state(-ac-has-matching-route) {
+    display: revert;
+  }
 }

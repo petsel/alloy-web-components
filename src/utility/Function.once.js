@@ -1,4 +1,4 @@
-import { isFunction, getFunctionName, isAbortController } from "./type-detection";
+import { getFunctionName, isFunction, isAbortController } from "./type-detection";
 
 /**
  * @param {Function} proceed  
@@ -6,23 +6,27 @@ import { isFunction, getFunctionName, isAbortController } from "./type-detection
  * @param  {Array<any>} boundArgs 
  * @returns {Function}
  */
-function asOnceModification(proceed, target, controller, boundArgs) {
+function asExecuteOnceModification(proceed, target, boundArgsAndOrController) {
     'use strict';
+
+    const controller = boundArgsAndOrController.at(-1);
+    const boundArgs = boundArgsAndOrController.slice(0, -1);
 
     const modifiedName = `once ${ getFunctionName(proceed) ?? 'anonymous' }`;
     const hasController = isAbortController(controller);
 
-    if (!hasController) {
+    if (!hasController && (typeof controller !== 'undefined')) {
+        // - restore the arguments array to its initially intended form.
         boundArgs.unshift(controller);
     }
     let canBeInvoked = true;
-debugger;
-    const once = ({
+
+    const executeOnce = ({
       [modifiedName]: function (...args) {
         let result;
 
         if (canBeInvoked) {
-          result = proceed.apply((target || this), boundArgs.concat(args));
+          result = proceed.apply((target ?? this), boundArgs.concat(args));
 
           if (hasController) {
             controller.abort();
@@ -33,32 +37,34 @@ debugger;
       },
     })[modifiedName];
 
-    Reflect.defineProperty(once, 'name', { value: modifiedName });
-    Reflect.defineProperty(once, 'origin', { get: () => proceed });
+    Reflect.defineProperty(executeOnce, 'name', { value: modifiedName });
+    Reflect.defineProperty(executeOnce, 'origin', { get: () => proceed });
 
-    return once;
+    return executeOnce;
 }
 
 /**
  * @this {Function}  
  * @param {(Object|null)} target 
- * @param  {Array<any>} boundArgs 
+ * @param  {Array<any>} boundArgsAndOrController 
  * @returns {Function}
  */
-function once(target, controller, ...boundArgs) {
+function once(target, ...boundArgsAndOrController) {
+    const proceed = this;
+
     return isFunction(proceed)
-      && asOnceModification(proceed, (target || null), controller, boundArgs)
+      && asExecuteOnceModification(proceed, (target ?? null), boundArgsAndOrController)
       || proceed;
 }
 
 /**
  * @param {Function} proceed  
  * @param {(Object|null)} target 
- * @param  {Array<any>} boundArgs 
+ * @param  {Array<any>} boundArgsAndOrController 
  * @returns {Function}
  */
-export function executeOnce(proceed, target, ...boundArgs) {
-    return once.apply(proceed, boundArgs);
+export function executeOnce(proceed, target, ...boundArgsAndOrController) {
+    return once.call(proceed, target, ...boundArgsAndOrController);
 }
 
 Reflect.defineProperty(Function.prototype, 'once', {

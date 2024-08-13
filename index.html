@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    <h1>Alloy Web-Component Playground</h1>
+    <h2>Alloy Web-Component Playground</h2>
 
     <alloy-router role="" for="festival-app">
       <alloy-route></alloy-route>
@@ -25,34 +25,36 @@
       <alloy-page
         role="page"
         traits="routed fetching"
-        route="/events"
+        path="/"
         fetch="/data/v1/events"
       >
         event overview page
+        <a href="/bands">Bands</a>
       </alloy-page><!--
 
       <alloy-page
         role="page"
         traits="routed fetching"
-        route="/events/:event"
+        path="/events/:event"
         fetch="/data/v1/events/:event"
       >
         specifc event page
-      </alloy-page>
+      </alloy-page>-->
 
       <alloy-page
         role="page"
         traits="routed fetching"
-        route="/bands"
+        path="/bands"
         fetch="/data/v1/bands"
       >
         band overview page
-      </alloy-page>
+        <a href="/">Events</a>
+      </alloy-page><!--
 
       <alloy-page
         role="page"
         traits="routed fetching"
-        route="/bands/:band"
+        path="/bands/:band"
         fetch="/data/v1//bands/:band"
       >
         specifc band page

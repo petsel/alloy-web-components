@@ -258,3 +258,14 @@ class Microstructure extends HTMLElement {
   }*/
 }
 export const /** @type Microstructure */ BaseAlloy = Microstructure;
+
+
+/**
+ * @param {Microstructure} compound
+ * @param {string} name
+ * @param {(string|undefined)} initialValue
+ * @returns {(string|null)}
+ */
+export function getAttributeOr(compound, name, initialValue = null) {
+  return (compound.getAttribute(name) ?? initialValue)?.trim?.();
+}

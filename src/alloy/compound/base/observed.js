@@ -38,7 +38,7 @@ function handleAdditionalAttributeMutation(attrNameIndex, mutationList /*, obser
  */
 function reassignAdditionalAttributes(additionalAttributes, evt) {
     const compound = this;
-debugger;
+
     if (isTrustedOwnEvent(evt)) {
 
       additionalAttributes
@@ -78,16 +78,29 @@ export function complementMutationHandling(compound, compoundData) {
       handleAdditionalAttributeMutation.bind(compound, new Set(additionalAttributes)),
     );
     const disconnect = disconnectAndAbort.bind(null, observer, controller);
+    const { signal } = controller;
   
-    compound.addEventListener('ca-disconnected', disconnect, { signal: controller.signal });
-    compound.addEventListener('ca-adopted', disconnect, { signal: controller.signal });
+    compound.addEventListener('ca-disconnected', disconnect, { signal });
+    compound.addEventListener('ca-adopted', disconnect, { signal });
   
     observer.observe(compound, { attributes: true });
 
     const reassignmentController = new AbortController;
+    // - IMPORTANT: do not use the `{ once: true }` [`option`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#once)
+    //    - The Alloy/Microstsructure based system internally uses own trusted
+    //      versions of `Event`/`CustomEvent` in order to distinguish them from
+    //      naive/simple spoofing approaches.
+    //    - And since any manually or 3rd party dispatched 'ca-connected' event
+    //      can still trigger any handler which has been subscribed to its type,
+    //      one always is endangered of loosing the correctly timed event-handling
+    //      due to the `once` option.
+    //    - The correct handling therefore relies on an own `once` method which
+    //      has been implemented at `Function.prototype`. This method, in addition
+    //      to both, the bound `thisArg`/context and all optional attributes,
+    //      allows an `AbortController` instance as its last (optional) parameter.
     compound.addEventListener(
       'ca-connected',
-      reassignAdditionalAttributes.once(compound, reassignmentController, additionalAttributes),
+      reassignAdditionalAttributes.once(compound, additionalAttributes, reassignmentController),
       { signal: reassignmentController.signal },
     );
   }

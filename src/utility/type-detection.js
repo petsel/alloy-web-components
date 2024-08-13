@@ -17,3 +17,10 @@ export function isFunction(value) {
 export function isAbortController(value) {
   return (exposeInternalTypeSignature(value) === '[object AbortController]');
 }
+
+export function isHTMLAnchorElement(value) {
+  return (exposeInternalTypeSignature(value) === '[object HTMLAnchorElement]');
+}
+export function isHtmlLinkElement(value) {
+  return (isHTMLAnchorElement(value) && value.hasAttribute('href'));
+}

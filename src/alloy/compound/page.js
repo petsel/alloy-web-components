@@ -9,7 +9,7 @@ import { BaseAlloy, alloy, interconnect } from './base/alloy';
 export class Page extends BaseAlloy {
 
   static get observedAttributes() {
-    return ['route'];
+    return ['path'];
   }
   #state;
   #trusted;
@@ -45,6 +45,7 @@ export class Page extends BaseAlloy {
         this.#observedAttrNames = observedAttrNames;
 
         this.#state.compoundName = this.localName;
+        this.#internals.role = (this.getAttribute('role') ?? '').trim() || 'page';
 
         console.log('Page ...', {
           state: this.#state,

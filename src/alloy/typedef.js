@@ -46,13 +46,6 @@
 
 
 /**
- * @typedef {Object} RouteState
- * 
- *  @property {String} currentRoute
- */
-
-
-/**
  *  Always a function which has to be applied exclusively via `call` or
  *  `apply` to an object- respectively node-instance. Such a function is
  *  always `this` context aware and implements at least one method which
@@ -70,6 +63,14 @@
 
 /**
  * @typedef {Set<String>} StringSet
+ */
+
+
+/**
+ * @typedef {Object} CompoundLocation
+ * 
+ *  @property {String} currentPath
+ *  @property {StringSet} matchingPaths
  */
 
 
