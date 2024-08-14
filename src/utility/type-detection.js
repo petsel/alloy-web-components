@@ -12,11 +12,11 @@ export function isFunction(value) {
     typeof value.call === 'function' &&
     typeof value.apply === 'function'
   );
-}
+}/*
 
-export function isAbortController(value) {
-  return (exposeInternalTypeSignature(value) === '[object AbortController]');
-}
+export function isString(value) {
+  return (exposeInternalTypeSignature(value) === '[object String]');
+}*/
 
 export function isHTMLAnchorElement(value) {
   return (exposeInternalTypeSignature(value) === '[object HTMLAnchorElement]');
@@ -24,3 +24,8 @@ export function isHTMLAnchorElement(value) {
 export function isHtmlLinkElement(value) {
   return (isHTMLAnchorElement(value) && value.hasAttribute('href'));
 }
+
+export function isAbortController(value) {
+  return (exposeInternalTypeSignature(value) === '[object AbortController]');
+}
+

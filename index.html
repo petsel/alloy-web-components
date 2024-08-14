@@ -12,34 +12,47 @@
   </head>
 
   <body>
-    <h2>Alloy Web-Component Playground</h2>
 
+    <!--
     <alloy-router role="" for="festival-app">
       <alloy-route></alloy-route>
       <alloy-route></alloy-route>
       <alloy-route></alloy-route>
       <alloy-route></alloy-route>
     </alloy-router>
+    -->
 
-    <alloy-app id="festival-app">
+    <alloy-app id="festival-app"  traits="routed">
+      <h2>Alloy Web-Component Playground</h2>
+
+      Please visit our <a href="/bands">Bands</a> and <a href="/events">Events</a>
+
+      <!-- <base-alloy traits="routed"> -->
+        <nav>
+          <ul>
+            <li>
+              <a href="/">Home</a>
+            </li>
+            <li>
+              <a href="/bands">Bands</a>
+            </li>
+            <li>
+              <a href="/events">Events</a>
+            </li>
+          </ul>
+        </nav>
+      <!-- </base-alloy> -->
+
       <alloy-page
         role="page"
         traits="routed fetching"
         path="/"
-        fetch="/data/v1/events"
       >
-        event overview page
-        <a href="/bands">Bands</a>
-      </alloy-page><!--
-
-      <alloy-page
-        role="page"
-        traits="routed fetching"
-        path="/events/:event"
-        fetch="/data/v1/events/:event"
-      >
-        specifc event page
-      </alloy-page>-->
+        <h3>Homepage</h3>
+        <p>
+          Homepage content
+        </p>
+      </alloy-page>
 
       <alloy-page
         role="page"
@@ -47,10 +60,13 @@
         path="/bands"
         fetch="/data/v1/bands"
       >
-        band overview page
-        <a href="/">Events</a>
-      </alloy-page><!--
+        <h3>Band Overview Ppage</h3>
+        <p>
+          band overview page content
+        </p>
+      </alloy-page>
 
+      <!--
       <alloy-page
         role="page"
         traits="routed fetching"
@@ -58,7 +74,32 @@
         fetch="/data/v1//bands/:band"
       >
         specifc band page
-      </alloy-page>-->
+      </alloy-page>
+      -->
+
+      <alloy-page
+        role="page"
+        traits="routed fetching"
+        path="/events"
+        fetch="/data/v1/events"
+      >
+      <h3>Event Overview Ppage</h3>
+      <p>
+        event overview page content
+      </p>
+      </alloy-page>
+
+      <!--
+      <alloy-page
+        role="page"
+        traits="routed fetching"
+        path="/events/:event"
+        fetch="/data/v1/events/:event"
+      >
+        specifc event page
+      </alloy-page>
+      -->
+
     </alloy-app>
   </body>
 </html>

@@ -6,6 +6,15 @@ const { CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
 
 
 /**
+ * @param {ElementInternals} internals 
+ * @returns {boolean}
+ */
+function hasMatchingPath(internals) {
+  return internals.states.has('-ac-has-matching-path');
+}
+
+
+/**
  * @param {CompoundData} compoundData
  * @param {boolean} doesMatch
  */
@@ -13,15 +22,15 @@ function setMatchingPathState(compoundData, doesMatch) {
   const { internals: { states } } = compoundData;
 
   const doesHaveMatchingState =
-    states.has('-ac-has-matching-route') 
+    states.has('-ac-has-matching-path') 
 
   if (doesMatch && !doesHaveMatchingState) {
 
-    states.add('-ac-has-matching-route');
+    states.add('-ac-has-matching-path');
 
   } else if (!doesMatch && doesHaveMatchingState) {
 
-    states.delete('-ac-has-matching-route');
+    states.delete('-ac-has-matching-path');
   }
 }
 
@@ -54,26 +63,6 @@ function handleLocationChange(compoundData, compoundLocation, { location /*, ...
   }
 }
 
-/**
- * @this {Microstructure}
- * @param {CompoundData} compoundData
- * @param {Event} evt
- */
-function handleHostRouting(compoundData, evt) {
-  const elmLink = evt.target.closest('a[href]');
-
-  if (
-    isHtmlLinkElement(elmLink) &&
-    evt.currentTarget.contains(elmLink) &&
-    (elmLink.href ?? '').startsWith(location.origin)
-  ) {
-    evt.stopImmediatePropagation();
-    evt.stopPropagation();
-    evt.preventDefault();
-
-    compoundData.history.push(elmLink.href);
-  }
-}
 
 /**
  * @this {Microstructure}
@@ -118,13 +107,6 @@ function enableRoutedCompound(compoundData, evt) {
 
   console.log('`enableRoutedCompound` ...', { compound, evt });
 
-  // - In addition the _"with routing"_ trait listens to browser-history changes.
-  // - see ... `history.listen(handleHistoryChange)`.
-
-  // - On top, this trait manages the browser-history's push-state for every
-  //   link that points into the current host's realm and has been clicked on.
-  // - see ... `addEventListener('click', handleRoute)`
-
   // // let matchingPaths = mergeIndices(new Set, createPathIndex(compound));
   const matchingPaths = new Set([getAttributeOr(compound, 'path')]);
 
@@ -144,7 +126,6 @@ function enableRoutedCompound(compoundData, evt) {
     currentPath: null,
   };
   const handleHistoryChange = handleLocationChange.bind(compound, compoundData, compoundLocation);
-  const handleRoute = handleHostRouting.bind(compound, compoundData);
 
   const controller = new AbortController;
   const { signal } = controller;
@@ -156,13 +137,51 @@ function enableRoutedCompound(compoundData, evt) {
   compound.addEventListener('ca-disconnected', disconnect, { signal });
 
   compound.addEventListener('ca-attr-changed', handleAttributeChange, { signal });
-  // compound.addEventListener('ca-path-change', evt => console.log({ evt }));
 
-  compound.addEventListener('click', handleRoute);
-
-  debugger;
+  Reflect.defineProperty(compound, 'hasMatchingPath', {
+    get: () => hasMatchingPath(compoundData.internals),
+  });
   handleHistoryChange({ location });
 }
+
+
+/**
+ * @this {Microstructure}
+ * @param {CompoundData} compoundData
+ * @param {Event} evt
+ */
+function handleHostRoute(compoundData, evt) {
+  const elmLink = evt.target.closest('a[href]');
+debugger;
+  if (
+    isHtmlLinkElement(elmLink) &&
+    evt.currentTarget.contains(elmLink) &&
+    (elmLink.href ?? '').startsWith(location.origin)
+  ) {
+    evt.stopImmediatePropagation();
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    compoundData.history.push(elmLink.href);
+  }
+}
+
+/**
+ * @this {Microstructure}
+ * @param {CompoundData} compoundData
+ * @param {TrustedCompoundEvent} evt
+ */
+function enableCompoundRoutes(compoundData, evt) {
+  if (!isTrustedOwnEvent(evt)) {
+    return;
+  }
+  const compound = this;
+
+  console.log('`enableCompoundRoutes` ...', { compound, evt });
+
+  compound.addEventListener('click', handleHostRoute.bind(compound, compoundData));
+}
+
 
 /**
  * @this {Microstructure}
@@ -178,14 +197,16 @@ export function withRouting(compoundData) {
   //   `path` attribute, and does handle such changes accordingly.
   compoundData.observedAttrNames.add('path');
 
-  // - In addition the _"with routing"_ trait enables listening to
-  //   browser-history changes.
-  // - see ... `history.listen(handleHistoryChange)`.
+  if (compound.hasAttribute('path')) {
 
+    // - In addition the _"with routing"_ trait enables listening to
+    //   browser-history changes.
+    // - see ... `history.listen(handleHistoryChange)`.
+    compound.addEventListener('ca-connected', enableRoutedCompound.bind(compound, compoundData));
+  }
   // - On top, this trait manages the browser-history's push-state
   //   for every link that points into the current host's realm and
   //   has been clicked on.
   // - see ... `addEventListener('click', handleRoute)`
-
-  compound.addEventListener('ca-connected', enableRoutedCompound.bind(compound, compoundData));
+  compound.addEventListener('ca-connected', enableCompoundRoutes.bind(compound, compoundData));
 }

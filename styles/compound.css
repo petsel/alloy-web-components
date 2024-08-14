@@ -7,7 +7,7 @@
 alloy-page {
   display: none;
 
-  &:state(-ac-has-matching-route) {
+  &:state(-ac-has-matching-path) {
     display: revert;
   }
 }

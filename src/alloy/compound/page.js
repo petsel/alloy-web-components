@@ -48,14 +48,16 @@ export class Page extends BaseAlloy {
         this.#internals.role = (this.getAttribute('role') ?? '').trim() || 'page';
 
         console.log('Page ...', {
-          state: this.#state,
-          trusted: this.#trusted,
-          internals: this.#internals,
-          history: this.#history,
-          traits: this.#traits,
-          observedAttrNames: this.#observedAttrNames,
+          state, trusted, internals, history, traits , observedAttrNames,
         });
       },
     );
+    this.addEventListener('ca-path-change', evt => {
+      console.log({ 
+        hasMatchingPath: evt.currentTarget.hasMatchingPath,
+        compound: this,
+        evt,
+       });
+    });
   }
 }

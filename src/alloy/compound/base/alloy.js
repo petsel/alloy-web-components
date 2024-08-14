@@ -92,11 +92,18 @@ export const alloy = bindCompoundData;
  */
 class Microstructure extends HTMLElement {
 
-  // #trustedEvent;
+  #state;
+  #trusted;
+  #internals;
+  #history;
+  #traits;
+  #observedAttrNames;
 
   /**
-   * @this {Microstructure}
-   * @param {Function} connect
+   * @param {compoundConnector} connect
+   *  - The compound and compound-data connecting callback function.
+   *  - A provided `connect` callback method/function indicates the
+   *    sub-classing of the `Microstructure` base-type itself.
    */
   constructor(connect) {
     super();
@@ -184,9 +191,32 @@ class Microstructure extends HTMLElement {
     if (isFunction(connect)) {
 
       connect(microstructureData);
-    }
-    // compound.#trustedEvent = trustedOptions.event;
 
+    } else {
+      const { state, trusted, internals, history, traits , observedAttrNames }
+        = microstructureData;
+
+      this.#state = state;
+      this.#trusted = trusted;
+      this.#internals = internals;
+      this.#history = history;
+      this.#traits = traits;
+      this.#observedAttrNames = observedAttrNames;
+
+      if (this.hasAttribute('role')) {
+        this.#internals.role = this.getAttribute('role').trim();
+      }
+      this.#state.compoundName = this.localName;
+
+      console.log('Microstructure ...', {
+        state: this.#state,
+        trusted: this.#trusted,
+        internals: this.#internals,
+        history: this.#history,
+        traits: this.#traits,
+        observedAttrNames: this.#observedAttrNames,
+      });
+    }
     compound.addEventListener('ca-connected', handleCompoundLifeCycleEvent);
     compound.addEventListener('ca-disconnected', handleCompoundLifeCycleEvent);
     compound.addEventListener('ca-adopted', handleCompoundLifeCycleEvent);
