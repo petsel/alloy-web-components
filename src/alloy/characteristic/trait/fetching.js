@@ -80,7 +80,7 @@ function enableFetchingCompound(compound, compoundData, evt) {
   const options = computeFetchOptions(compound);
 
   // @TODO ... check `location.origin` versus `location.host` versus `location.hostname`
-  if (location.hostname === new URL(action).hostname) {
+  if (location.host === new URL(action).host) {
 
     options.mode = 'same-origin';
   }
