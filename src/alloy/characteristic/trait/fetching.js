@@ -1,5 +1,4 @@
-import { tryOperation } from '../../../utility/try';
-
+import { execute as executeSafely } from '../../../utility/try-catch';
 import { event as trustedEvent } from '../../compound/base/trusted';
 
 
@@ -129,7 +128,7 @@ export function withFetching(compoundData) {
   if (compound.hasAttribute('fetch')) {
 
     const [action, error] =
-      tryOperation(resolveFetchAction, compound.getAttribute('fetch').trim());
+      executeSafely(resolveFetchAction, compound.getAttribute('fetch').trim());
 
     if (!error) {
       compoundData.traits.set('fetching', { action });

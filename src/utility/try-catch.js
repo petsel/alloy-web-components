@@ -3,7 +3,7 @@
  * @param  {Array<any>} args
  * @returns {[any, (Error|undefined)]}
  */
-export function tryOperation(proceed, ...args) {
+export function execute(proceed, ...args) {
   let result;
   let error;
 
