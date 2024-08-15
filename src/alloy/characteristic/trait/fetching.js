@@ -6,10 +6,67 @@ import { event as trustedEvent } from '../../compound/base/trusted';
 const { CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
 
 
+const defaultValueKey = Symbol('default-value-key');
+
+const fetchModeLookup = new Map([
+  // see ... [https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#mode]
+
+  ['same-origin', true],  // Disallows cross-origin requests completely.
+  ['cors', true],         // If the request is cross-origin then it will use the Cross-Origin Resource Sharing (CORS) mechanism.
+  ['no-cors', true],      // The request must be a simple request, which restricts the headers that may be set to CORS-safelisted request headers, and restricts methods to GET, HEAD, and POST.
+  ['navigate', true],     // Used only by HTML navigation. A navigate request is created only while navigating between documents.
+  ['websocket', true],    // Used only when establishing a WebSocket connection.
+
+  [defaultValueKey, 'cors'],
+]);
+
+const supportedFetchOptionAttributes = new Map([
+  ['fetch-mode', new Map([ ['key', 'mode'], ['lookup', fetchModeLookup] ])],
+]);
+
 /**
- * 
- * @param {Microstructure} compound 
- * @param {CompoundData} compoundData 
+ * @param {Object} collector
+ *  @param {Microstructure} collector.compound
+ *  @param {Object} collector.options
+ * @param {[string, Map<string, string|Map<string|symbol, true|string>>]} tuple
+ * @returns 
+ */
+function aggregateFetchOptionsEntry({ compound, options }, [attrName, optionsMap]) {
+  const /** @type Map<string|symbol, true|string> */ lookup = optionsMap.get('lookup');
+  const /** @type string */ key = optionsMap.get('key');
+
+  const /** @type string */ attrValue = (compound.getAttribute(attrName) ?? '')
+    .trim()
+    .split(/\s+/)
+    .at(-1);
+
+  const /** @type string|undefined */ value = lookup.has(attrValue)
+    && attrValue
+    || lookup.get(defaultValueKey);
+
+  if (!!value) {
+    options[key] = value;
+  }
+  return { compound, options };
+}
+
+/**
+ * @param {Microstructure} compound
+ * @returns {Object}
+ */
+function computeFetchOptions(compound) {
+  return [...supportedFetchOptionAttributes.entries()]
+    .reduce(aggregateFetchOptionsEntry, {
+      compound,
+      options: {},
+    })
+    .options;
+}
+
+
+/**
+ * @param {Microstructure} compound
+ * @param {CompoundData} compoundData
  * @param {TrustedCompoundEvent} evt
  */
 function enableFetchingCompound(compound, compoundData, evt) {
@@ -19,8 +76,17 @@ function enableFetchingCompound(compound, compoundData, evt) {
   }
   const traitData = compoundData.traits.get('fetching');
   const { action } = traitData;
- 
-  console.log('`enableFetchingCompound` ...', { fetch: { action }, compound, evt });
+
+  const options = computeFetchOptions(compound);
+
+  // @TODO ... check `location.origin` versus `location.host` versus `location.hostname`
+  if (location.hostname === new URL(action).hostname) {
+
+    options.mode = 'same-origin';
+  }
+  traitData.options = options;
+
+  console.log('`enableFetchingCompound` ...', { fetch: { action, options }, compound, evt });
 
   compound.dispatchEvent(
     new Event('ca-connected-trait:fetching'),
@@ -33,18 +99,18 @@ function enableFetchingCompound(compound, compoundData, evt) {
  * @returns {string}
  */
 function resolveFetchAction(pathOrHref) {
-  const regXUriScheme = /^\w+:/;
+  const regXProtocol = /^\w+:/;
   const regXValidPath = /^(?:[\/]+)?[^/\s]+\/?([^/\s]+\/?)*$/u;
 
-  const hasUriScheme = regXUriScheme.test(pathOrHref);
+  const hasProtocol = regXProtocol.test(pathOrHref);
   const isValidPath = regXValidPath.test(pathOrHref);
 
-  if (!hasUriScheme && !isValidPath) {
+  if (!hasProtocol && !isValidPath) {
     throw new TypeError(
       `'${ pathOrHref }' is either an unresolvable or for other reasons invalid path.`
     );
   }
-  const locator = hasUriScheme
+  const locator = hasProtocol
     && pathOrHref
     || [location.origin, pathOrHref.replace(/^\//, '')].join('\/');
 

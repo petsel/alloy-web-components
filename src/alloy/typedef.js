@@ -162,7 +162,7 @@
  *    are supposed to be treated as protected, which means, none
  *    should ever be exposed into public as writable.
  *  @property {DataObject} state
- *  @property {Map<string, DataObject>} traits
+ *  @property {Map<string, Object>} traits
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history
@@ -187,7 +187,7 @@
  *    are supposed to be treated as protected, which means, none
  *    should ever be exposed into public as writable.
  *  @property {DataObject} state
- *  @property {Map<string, DataObject>} traits
+ *  @property {Map<string, Object>} traits
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history

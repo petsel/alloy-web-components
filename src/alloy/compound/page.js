@@ -59,15 +59,27 @@ export class Page extends BaseAlloy {
       },
     );
     this.addEventListener('ca-path-change', evt => {
-      console.log({ 
+      console.log("'ca-path-change' ... ", { 
+
         hasMatchingPath: evt.currentTarget.hasMatchingPath,
         compound: this,
         evt,
        });
-    });
+    });/*
+
+    this.addEventListener('ca-connected-trait:routed', evt => {
+      console.log("'ca-connected-trait:routed' ... ", {
+
+        hasMatchingPath: this.hasMatchingPath,
+        compound: this,
+        evt,
+      });
+    });*/
     this.addEventListener('ca-connected-trait:fetching', evt => {
-      console.log({ 
+      console.log("'ca-connected-trait:fetching' ... ", { 
+
         'fetch-action': this.#traits.get('fetching').action,
+        'fetch-options': this.#traits.get('fetching').options,
         compound: this,
         evt,
       });
