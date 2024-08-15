@@ -75,8 +75,8 @@ function handleAttributeChange(evt) {
   if (isTrustedOwnEvent(evt)) {
     const { currentTarget, detail: { name, value: { recent } } } = evt;
 
-    if (name === 'path') {
-      currentTarget.setAttribute('path', recent);
+    if (name === 'paths') {
+      currentTarget.setAttribute('paths', recent);
     }
   }
 }
@@ -108,7 +108,7 @@ function enableRoutedCompound(compoundData, evt) {
   console.log('`enableRoutedCompound` ...', { compound, evt });
 
   // // let matchingPaths = mergeIndices(new Set, createPathIndex(compound));
-  const matchingPaths = new Set([getAttributeOr(compound, 'path')]);
+  const matchingPaths = new Set([getAttributeOr(compound, 'paths')]);
 
   const { history } = compoundData;
   const { location } = history;
@@ -192,12 +192,11 @@ export function withRouting(compoundData) {
 
   console.log('`withRouting`');
 
-  // - `path` is both, a trait-specific property and attribute.
   // - the trait's behavior recognizes value-changes at a compound's
-  //   `path` attribute, and does handle such changes accordingly.
-  compoundData.observedAttrNames.add('path');
+  //   `paths` attribute, and does handle such changes accordingly.
+  compoundData.observedAttrNames.add('paths');
 
-  if (compound.hasAttribute('path')) {
+  if (compound.hasAttribute('paths')) {
 
     // - In addition the _"with routing"_ trait enables listening to
     //   browser-history changes.

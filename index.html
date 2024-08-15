@@ -12,16 +12,6 @@
   </head>
 
   <body>
-
-    <!--
-    <alloy-router role="" for="festival-app">
-      <alloy-route></alloy-route>
-      <alloy-route></alloy-route>
-      <alloy-route></alloy-route>
-      <alloy-route></alloy-route>
-    </alloy-router>
-    -->
-
     <alloy-app id="festival-app"  traits="routed">
       <h2>Alloy Web-Component Playground</h2>
 
@@ -46,7 +36,10 @@
       <alloy-page
         role="page"
         traits="routed fetching"
-        path="/"
+        paths="/"
+        fetch='/data/api/v1/home'
+        fetch-options='{ "headers": {} }'
+        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
       >
         <h3>Homepage</h3>
         <p>
@@ -57,8 +50,10 @@
       <alloy-page
         role="page"
         traits="routed fetching"
-        path="/bands"
-        fetch="/data/v1/bands"
+        paths="/bands"
+        fetch="/data/api/v1/bands"
+        fetch-options='{ "headers": {} }'
+        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
       >
         <h3>Band Overview Ppage</h3>
         <p>
@@ -70,8 +65,10 @@
       <alloy-page
         role="page"
         traits="routed fetching"
-        path="/bands/:band"
-        fetch="/data/v1//bands/:band"
+        paths="'/bands/:band','/bands/:band'"
+        fetch="/data/api/v1/bands/:band"
+        fetch-options='{ "headers": {} }'
+        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
       >
         specifc band page
       </alloy-page>
@@ -80,8 +77,11 @@
       <alloy-page
         role="page"
         traits="routed fetching"
-        path="/events"
-        fetch="/data/v1/events"
+        paths="/events"
+        fetch="/data/api/v1/events"
+        fetch-options='{ "headers": {} }'
+        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
+        fetch-target=":event(ca-path-change):state(-ca-has-matching-path)"
       >
       <h3>Event Overview Ppage</h3>
       <p>
@@ -93,8 +93,10 @@
       <alloy-page
         role="page"
         traits="routed fetching"
-        path="/events/:event"
-        fetch="/data/v1/events/:event"
+        paths="/events/:event"
+        fetch="/data/api/v1/events/:event"
+        fetch-options='{ "headers": {} }'
+        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
       >
         specifc event page
       </alloy-page>

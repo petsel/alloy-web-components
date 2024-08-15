@@ -162,6 +162,7 @@
  *    are supposed to be treated as protected, which means, none
  *    should ever be exposed into public as writable.
  *  @property {DataObject} state
+ *  @property {Map<string, DataObject>} traits
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history
@@ -172,7 +173,7 @@
 //  * @typedef {Object} MicrostructureData
 //  *  @extends CompoundData
 //  *  
-//  *  @property {TraitSet} traits
+//  *  @property {TraitSet} appliedTraits
 //  */
 
 /**
@@ -186,11 +187,12 @@
  *    are supposed to be treated as protected, which means, none
  *    should ever be exposed into public as writable.
  *  @property {DataObject} state
+ *  @property {Map<string, DataObject>} traits
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history
  *  @property {StringSet} observedAttrNames
- *  @property {TraitSet} traits
+ *  @property {TraitSet} appliedTraits
  */
 
 /**

@@ -93,10 +93,12 @@ export const alloy = bindCompoundData;
 class Microstructure extends HTMLElement {
 
   #state;
+  #traits;
   #trusted;
   #internals;
+
   #history;
-  #traits;
+  #appliedTraits;
   #observedAttrNames;
 
   /**
@@ -136,9 +138,12 @@ class Microstructure extends HTMLElement {
     const /** @type CompoundData */ compoundData = Object.freeze(
       Object.assign(
         Object.create(null), {
+
           state: compoundState,
+          traits: new Map,
           trusted: trustedOptions,
           internals: elementInternals,
+
           history: browserHistory,
           /**
            * - The set of yet to be collected and 
@@ -162,7 +167,7 @@ class Microstructure extends HTMLElement {
     //   charcteistics/traits/mixins/roles/behaviors by reading each
     //   its corresponding name from the compound's `traits` attribute.
 
-    const /** @type TraitSet */ acquiredTraits =
+    const /** @type TraitSet */ appliedTraits =
       acquireTraits(compound, compoundData, /* customTraitLookup, */);
 
     enableWaiAria(compound, compoundData /* , customAriaConfig */);
@@ -173,34 +178,37 @@ class Microstructure extends HTMLElement {
       Object.assign(
         Object.create(null),
         compoundData,
-        { traits: acquiredTraits },
+        { appliedTraits },
       ),
     );
-
     compoundRegistry.set(
       compound,
       new Map([
+
         ['state', compoundState],
+        ['traits', compoundData.traits],
         ['trusted', trustedOptions],
         ['internals', elementInternals],
+
         ['history', browserHistory],
-        ['traits', acquiredTraits],
+        ['appliedTraits', appliedTraits],
         ['observedAttrNames', compoundData.observedAttrNames],
       ]),
     );
     if (isFunction(connect)) {
 
       connect(microstructureData);
-
     } else {
-      const { state, trusted, internals, history, traits , observedAttrNames }
+      const { state, traits, trusted, internals, history, appliedTraits, observedAttrNames }
         = microstructureData;
 
       this.#state = state;
+      this.#traits = traits;
       this.#trusted = trusted;
       this.#internals = internals;
+
       this.#history = history;
-      this.#traits = traits;
+      this.#appliedTraits = appliedTraits;
       this.#observedAttrNames = observedAttrNames;
 
       if (this.hasAttribute('role')) {
@@ -209,12 +217,7 @@ class Microstructure extends HTMLElement {
       this.#state.compoundName = this.localName;
 
       console.log('Microstructure ...', {
-        state: this.#state,
-        trusted: this.#trusted,
-        internals: this.#internals,
-        history: this.#history,
-        traits: this.#traits,
-        observedAttrNames: this.#observedAttrNames,
+        state, traits, trusted, internals, history, appliedTraits, observedAttrNames,
       });
     }
     compound.addEventListener('ca-connected', handleCompoundLifeCycleEvent);
@@ -285,6 +288,12 @@ class Microstructure extends HTMLElement {
   }
   getHistory() {
     compoundRegistry.get(this)?.get?.('history');
+  }
+  getAppliedTraits() {
+    compoundRegistry.get(this)?.get?.('appliedTraits');
+  }
+  getObservedAttrNames() {
+    compoundRegistry.get(this)?.get?.('observedAttrNames');
   }*/
 }
 export const /** @type Microstructure */ BaseAlloy = Microstructure;

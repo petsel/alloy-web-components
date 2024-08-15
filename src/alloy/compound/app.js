@@ -8,10 +8,12 @@ import { BaseAlloy, alloy, interconnect } from './base/alloy';
 export class App extends BaseAlloy {
 
   #state;
+  #traits;
   #trusted;
   #internals;
+
   #history;
-  #traits;
+  #appliedTraits;
   #observedAttrNames;
 
   /**
@@ -31,13 +33,15 @@ export class App extends BaseAlloy {
       /** @type compoundConnector */ connect,
       /** @type compoundConnector */ data => {
 
-        const { state, trusted, internals, history, traits , observedAttrNames } = data;
+        const { state, traits, trusted, internals, history, appliedTraits, observedAttrNames } = data;
 
         this.#state = state;
+        this.#traits = traits;
         this.#trusted = trusted;
         this.#internals = internals;
+
         this.#history = history;
-        this.#traits = traits;
+        this.#appliedTraits = appliedTraits;
         this.#observedAttrNames = observedAttrNames;
 
         if (this.hasAttribute('role')) {
@@ -46,7 +50,7 @@ export class App extends BaseAlloy {
         this.#state.compoundName = this.localName;
 
         console.log('App ...', {
-          state, trusted, internals, history, traits , observedAttrNames,
+          state, traits, trusted, internals, history, appliedTraits, observedAttrNames,
         });
       },
     );

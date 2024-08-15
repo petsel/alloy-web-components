@@ -6,7 +6,10 @@ export class Route extends BaseAlloy {
   // #traits;
   // #trusted;
   // #internals;
+
   // #history;
+  // #appliedTraits;
+  // #observedAttrNames;
 
   constructor(connect) {
     // - a provided `connect` method/function indicates
@@ -16,13 +19,16 @@ export class Route extends BaseAlloy {
 
     super(alloy.bind(compoundData));
 
-    interconnect(compoundData, connect, (/* { state, traits, trusted, internals, history } */) => {
+    interconnect(compoundData, connect, (/* { state, traits, trusted, internals, history, appliedTraits, observedAttrNames } */) => {
 
       // this.#state = state;
       // this.#traits = traits;
       // this.#trusted = trusted;
       // this.#internals = internals;
+
       // this.#history = history;
+      // this.#appliedTraits = appliedTraits;
+      // this.#observedAttrNames = observedAttrNames;
     });
   }
 }

@@ -9,13 +9,15 @@ import { BaseAlloy, alloy, interconnect } from './base/alloy';
 export class Page extends BaseAlloy {
 
   static get observedAttributes() {
-    return ['path'];
+    return ['paths'];
   }
   #state;
+  #traits;
   #trusted;
   #internals;
+
   #history;
-  #traits;
+  #appliedTraits;
   #observedAttrNames;
 
   /**
@@ -30,25 +32,29 @@ export class Page extends BaseAlloy {
 
     super(alloy.bind(compoundData));
 
+    // console.log('+++ Page Bootstrap Begin ...', performance.now() , ' +++');
+
     interconnect(
       compoundData,
       /** @type compoundConnector */ connect,
       /** @type compoundConnector */ data => {
 
-        const { state, trusted, internals, history, traits , observedAttrNames } = data;
+        const { state, traits, trusted, internals, history, appliedTraits, observedAttrNames } = data;
 
         this.#state = state;
+        this.#traits = traits;
         this.#trusted = trusted;
         this.#internals = internals;
+
         this.#history = history;
-        this.#traits = traits;
+        this.#appliedTraits = appliedTraits;
         this.#observedAttrNames = observedAttrNames;
 
         this.#state.compoundName = this.localName;
         this.#internals.role = (this.getAttribute('role') ?? '').trim() || 'page';
 
         console.log('Page ...', {
-          state, trusted, internals, history, traits , observedAttrNames,
+          state, traits, trusted, internals, history, appliedTraits, observedAttrNames,
         });
       },
     );
@@ -58,6 +64,14 @@ export class Page extends BaseAlloy {
         compound: this,
         evt,
        });
+    });
+    this.addEventListener('ca-connected-trait:fetching', evt => {
+      console.log({ 
+        'fetch-action': this.#traits.get('fetching').action,
+        compound: this,
+        evt,
+      });
+      // console.log('+++ Page Bootstrap End ...', performance.now() , ' +++');
     });
   }
 }
