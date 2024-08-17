@@ -1,9 +1,10 @@
 import './style.css';
 
-import { BaseAlloy } from './src/alloy/compound/base/alloy';
-
 import { App } from './src/alloy/compound/app';
 import { Page } from './src/alloy/compound/page';
+
+// import { BaseAlloy } from './src/alloy';
+import { BaseAlloy } from './src/alloy/compound/base/alloy';
 
 
 /*
@@ -17,6 +18,9 @@ document.addEventListener(
       console.log('+++ Total Render Time ...', performance.now() , ' +++')
   );
 
+// debugger;
+// new (BaseAlloy.from(HTMLElement));
+// // new (BaseAlloy.from(HTMLButtonElement));
 
 customElements.define('base-alloy', BaseAlloy);
 
