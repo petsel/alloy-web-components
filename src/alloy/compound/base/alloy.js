@@ -65,8 +65,8 @@ const browserHistory = createBrowserHistory();
 /** @type Map<Microstructure, Map<string, Object>> */
 export const compoundDataRegistry = new WeakMap;
 
-/** @type Map<Microstructure, Map<string, Object>> */
-const compoundRegistry = new WeakMap;
+// /** @type Map<Microstructure, Map<string, Object>> */
+// const compoundRegistry = new WeakMap;
 
 
 /**
@@ -234,21 +234,21 @@ class Microstructure extends HTMLElement {
 
     complementMutationHandling(compound);
 
-    compoundRegistry.set(
-      compound,
-      new Map([
-
-        ['state', compoundState],
-        ['traits', rawCompoundData.traits],
-
-        ['trusted', trustedOptions],
-        ['internals', elementInternals],
-        ['history', browserHistory],
-
-        ['appliedTraits', rawCompoundData.appliedTraits],
-        ['observedAttrNames', rawCompoundData.observedAttrNames],
-      ]),
-    );
+    // compoundRegistry.set(
+    //   compound,
+    //   new Map([
+    //
+    //     ['state', compoundState],
+    //     ['traits', rawCompoundData.traits],
+    //
+    //     ['trusted', trustedOptions],
+    //     ['internals', elementInternals],
+    //     ['history', browserHistory],
+    //
+    //     ['appliedTraits', rawCompoundData.appliedTraits],
+    //     ['observedAttrNames', rawCompoundData.observedAttrNames],
+    //   ]),
+    // );
     if (isFunction(connect)) {
 
       connect(compoundData);
@@ -302,7 +302,8 @@ class Microstructure extends HTMLElement {
     internalsRegistry.delete(compound);
     traitRegistry.delete(compound);
 
-    compoundRegistry.delete(compound);
+    compoundDataRegistry.delete(compound);
+    // compoundRegistry.delete(compound);
   }
   adoptedCallback() {
     const compound = this;
@@ -313,7 +314,8 @@ class Microstructure extends HTMLElement {
     internalsRegistry.delete(compound);
     traitRegistry.delete(compound);
 
-    compoundRegistry.delete(compound);
+    compoundDataRegistry.delete(compound);
+    // compoundRegistry.delete(compound);
   }
   attributeChangedCallback(name, recent, current) {
     this.dispatchEvent(
