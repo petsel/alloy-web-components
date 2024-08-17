@@ -73,7 +73,7 @@ function enableFetchingCompound(compound, compoundData, evt) {
   if (!isTrustedOwnEvent(evt)) {
     return;
   }
-  const traitData = compoundData.traits.get('fetching');
+  const traitData = compoundData.traits.get('fetches');
   const { action } = traitData;
 
   const options = computeFetchOptions(compound);
@@ -88,7 +88,7 @@ function enableFetchingCompound(compound, compoundData, evt) {
   console.log('`enableFetchingCompound` ...', { fetch: { action, options }, compound, evt });
 
   compound.dispatchEvent(
-    new Event('ca-connected-trait:fetching'),
+    new Event('ca-connected-trait:fetches'),
   );
 }
 
@@ -120,10 +120,10 @@ function resolveFetchAction(pathOrHref) {
  * @this {Microstructure}
  * @param {CompoundData} compoundData
  */
-export function withFetching(compoundData) {
+export function withFetch(compoundData) {
   const compound = this;
 
-  console.log('`withFetching`');
+  console.log('`withFetch`');
 
   if (compound.hasAttribute('fetch')) {
 
@@ -131,7 +131,7 @@ export function withFetching(compoundData) {
       executeSafely(resolveFetchAction, compound.getAttribute('fetch').trim());
 
     if (!error) {
-      compoundData.traits.set('fetching', { action });
+      compoundData.traits.set('fetches', { action });
 
       compound.addEventListener('ca-connected', evt => enableFetchingCompound(compound, compoundData, evt));
     } else {
@@ -144,7 +144,7 @@ export function withFetching(compoundData) {
   } else {
     console.warn(
       new RangeError(
-        "The Alloy Compound, though having applied the `fetching` trait, misses the 'fetch'-attribute.\n",
+        "The Alloy Compound, though having applied the `fetches` trait, misses the 'fetch'-attribute.\n",
       ),
     );
   }

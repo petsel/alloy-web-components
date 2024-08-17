@@ -36,6 +36,7 @@ function setMatchingPathState(compoundData, doesMatch) {
 
 /**
  * @this {Microstructure}
+ * @param {CompoundData} compoundData 
  * @param {CompoundLocation} compoundLocation
  * @param {RemixHistoryListenerData} callbackData
  *  @param {RemixHistoryLocation} callbackData.location
@@ -186,10 +187,10 @@ function enableCompoundRoutes(compound, compoundData, evt) {
  * @this {Microstructure}
  * @param {CompoundData} compoundData
  */
-export function withRouting(compoundData) {
+export function withPaths(compoundData) {
   const compound = this;
 
-  console.log('`withRouting`');
+  console.log('`withPaths`');
 
   // - the trait's behavior recognizes value-changes at a compound's
   //   `paths` attribute, and does handle such changes accordingly.

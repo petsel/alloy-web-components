@@ -58,18 +58,18 @@
  */
 
 /**
- * @typedef {Set<ApplicapleType>} TraitSet
+ * @typedef {Map<string, ApplicapleType>} TraitMap
  */
 
 /**
- * @typedef {Set<String>} StringSet
+ * @typedef {Set<string>} StringSet
  */
 
 
 /**
  * @typedef {Object} CompoundLocation
  * 
- *  @property {String} currentPath
+ *  @property {string} currentPath
  *  @property {StringSet} matchingPaths
  */
 
@@ -152,31 +152,6 @@
 
 
 /**
- * @typedef {Object} CompoundData
- *  - Any property of this data-structure, which at a compound's
- *    instantiation time has been injected into any involved sub-
- *    or super-class respectively into any applied trait, is/gets
- *    shared amongts any involved sub-classed prototype and any
- *    applied trait througout a custom-elemnt's entire lifetime.
- *  - The data-structure itself as well as any of its properties
- *    are supposed to be treated as protected, which means, none
- *    should ever be exposed into public as writable.
- *  @property {DataObject} state
- *  @property {Map<string, Object>} traits
- *  @property {TrustedOptions} trusted
- *  @property {ElementInternals} internals
- *  @property {RemixBrowserHistory} history
- *  @property {StringSet} observedAttrNames
- */
-
-// /**
-//  * @typedef {Object} MicrostructureData
-//  *  @extends CompoundData
-//  *  
-//  *  @property {TraitSet} appliedTraits
-//  */
-
-/**
  * @typedef {Object} MicrostructureData
  *  - Any property of this data-structure, which at a compound's
  *    instantiation time has been injected into any involved sub-
@@ -187,24 +162,45 @@
  *    are supposed to be treated as protected, which means, none
  *    should ever be exposed into public as writable.
  *  @property {DataObject} state
- *  @property {Map<string, Object>} traits
+ *  @property {Map<string, DataObject>} traits
  *  @property {TrustedOptions} trusted
  *  @property {ElementInternals} internals
  *  @property {RemixBrowserHistory} history
+ *  @property {TraitMap} appliedTraits
  *  @property {StringSet} observedAttrNames
- *  @property {TraitSet} appliedTraits
+ */
+
+/**
+ * @typedef {Object} CompoundData
+ *  - Any property of this data-structure, which at a compound's
+ *    instantiation time has been injected into any involved sub-
+ *    or super-class respectively into any applied trait, is/gets
+ *    shared amongts any involved sub-classed prototype and any
+ *    applied trait througout a custom-elemnt's entire lifetime.
+ *  - The data-structure itself as well as any of its properties
+ *    are supposed to be treated as protected, which means, none
+ *    should ever be exposed into public as writable.
+ *  @property {DataObject} state
+ *  @property {Map<string, DataObject>} traits
+ *  @property {TrustedOptions} trusted
+ *  @property {ElementInternals} internals
+ *  @property {RemixBrowserHistory} history
+ *  @readonly
+ *   @property {TraitMap} appliedTraits
+ *  @readonly
+ *   @property {StringSet} observedAttrNames
  */
 
 /**
  * @callback compoundConnector
- *  @param {MicrostructureData} data
+ *  @param {CompoundData} data
  */
+
 
 /**
  * @typedef {HTMLElement} Microstructure
  *  @extends HTMLElement
  *  @protected {CompoundData} compoundData
- *  @protected {MicrostructureData} microstructureData
  *  @static {Array} [observedAttributes]
  */
 

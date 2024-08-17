@@ -3,7 +3,7 @@ import { BaseAlloy, alloy, interconnect } from './base/alloy';
 /**
  * @class
  *  @extends Microstructure
- *  @protected {MicrostructureData} compoundData
+ *  @protected {CompoundData} compoundData
  *  @static {Array} [observedAttributes]
  */
 export class Page extends BaseAlloy {
@@ -28,7 +28,7 @@ export class Page extends BaseAlloy {
    */
   constructor(connect) {
 
-    const /** @type MicrostructureData */ compoundData = {};
+    const /** @type CompoundData */ compoundData = Object.create(null);
 
     super(alloy.bind(compoundData));
 
@@ -75,11 +75,11 @@ export class Page extends BaseAlloy {
         evt,
       });
     });*/
-    this.addEventListener('ca-connected-trait:fetching', evt => {
-      console.log("'ca-connected-trait:fetching' ... ", { 
+    this.addEventListener('ca-connected-trait:fetches', evt => {
+      console.log("'ca-connected-trait:fetches' ... ", { 
 
-        'fetch-action': this.#traits.get('fetching').action,
-        'fetch-options': this.#traits.get('fetching').options,
+        'fetch-action': this.#traits.get('fetches').action,
+        'fetch-options': this.#traits.get('fetches').options,
         compound: this,
         evt,
       });

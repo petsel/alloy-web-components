@@ -1,3 +1,6 @@
+import { compoundDataRegistry } from "../../compound/base/alloy";
+
+
 export const /** @type AriaConfig */ initialAriaConfig = Object.freeze({
   trait: {
     routed: {
@@ -29,9 +32,8 @@ export const /** @type AriaConfig */ initialAriaConfig = Object.freeze({
     },
   },
 });
-
-
 export const /** @type InternalsRegistry */ elementInternalsRegistry = new WeakMap;
+
 
 /**
  * @param {Microstructure} compound 
@@ -40,6 +42,7 @@ export const /** @type InternalsRegistry */ elementInternalsRegistry = new WeakM
 function getElementInternals(compound) {
   return elementInternalsRegistry.get(compound);
 }
+
 /**
  * @param {Microstructure} compound 
  * @returns {ElementInternals}
@@ -56,15 +59,19 @@ export function attachInternals(compound) {
 
 /**
  * @param {Microstructure} compound
- * @param {CompoundData} [compoundData={}]
  * @param {AriaConfig} [customAriaConfig]
  */
-export function enableWaiAria(compound, compoundData = {}, customAriaConfig) {
+export function enableWaiAria(compound, customAriaConfig) {
+  const dataMap = compoundDataRegistry.get(compound);
+
+  // const /** @type MicrostructureData */ rawCompoundData = dataMap.get('raw');
+  const /** @type CompoundData */ compoundData = dataMap.get('secured');
+
   const /** @type AriaConfig */ ariaConfig =
-    Object.assign(Object.create(null), initialAriaConfig, customAriaConfig);
+    Object.assign({}, initialAriaConfig, customAriaConfig);
 
   console.log(
-    'enableWaiAria ...',
+    '`enableWaiAria` ...',
     { compound, compoundData, ariaConfig, customAriaConfig },
   );
 }

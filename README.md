@@ -10,7 +10,7 @@ And while its approach is focused on handing back the markup's control/ownership
 
 The name _**"Crafted Alloy"**_ so far is the working name for this ongoing research-project.
 
-There are already other ui-libraries, browser related or desktop only, which feature/play with either name like [_**Craft.js**_](https://craft.js.org/) which ... _"is a React framework for building powerful & feature-rich drag-n-drop page editors"_ ... or [_**Alloy**_](https://github.com/adobe/alloy) which ... _"is the web SDK for the Adobe Experience Platform"_. There is also [_**AlloyUI**_](https://alloyui.com/) built on top of [_**YUI3**_](https://github.com/yui/yui3) as well as the [_Alloy Concepts_](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Guide/Alloy_Concepts.html) of the [_**Titanium SDK**_](https://titaniumsdk.com/).
+There are already other ui-libraries, browser related or desktop only, which feature respectively play with either name like [_**Craft.js**_](https://craft.js.org/) which ... _"is a React framework for building powerful & feature-rich drag-n-drop page editors"_ ... or [_**Alloy**_](https://github.com/adobe/alloy) which ... _"is the web SDK for the Adobe Experience Platform"_. There is also [_**AlloyUI**_](https://alloyui.com/) built on top of [_**YUI3**_](https://github.com/yui/yui3) as well as the [_Alloy Concepts_](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Guide/Alloy_Concepts.html) of the [_**Titanium SDK**_](https://titaniumsdk.com/).
 
 Nevertheless, since the _alloy_ metaphor works for this project's approach too, the project for now sticks with this initially chosen name. But the naming in future might become a moving target. Following names are possible ...
 

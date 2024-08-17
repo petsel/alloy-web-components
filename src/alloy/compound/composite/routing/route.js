@@ -4,10 +4,11 @@ export class Route extends BaseAlloy {
 
   // #state;
   // #traits;
+
   // #trusted;
   // #internals;
-
   // #history;
+
   // #appliedTraits;
   // #observedAttrNames;
 
@@ -15,7 +16,7 @@ export class Route extends BaseAlloy {
     // - a provided `connect` method/function indicates
     //   the sub-classing of the `Route` type itself.
 
-    const /** @type MicrostructureData */ compoundData = {};
+    const /** @type CompoundData */ compoundData = Object.create(null);
 
     super(alloy.bind(compoundData));
 
@@ -23,10 +24,11 @@ export class Route extends BaseAlloy {
 
       // this.#state = state;
       // this.#traits = traits;
+
       // this.#trusted = trusted;
       // this.#internals = internals;
-
       // this.#history = history;
+
       // this.#appliedTraits = appliedTraits;
       // this.#observedAttrNames = observedAttrNames;
     });

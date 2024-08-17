@@ -1,7 +1,10 @@
 import { executeOnce } from '../../../utility/Function.once';
+
+import { compoundDataRegistry } from './alloy';
 import { event as trustedEvent } from './trusted';
 
 const { CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
+
 
 /**
  * @this {Microstructure}
@@ -58,11 +61,17 @@ function disconnectAndAbort(observer, controller) {
   controller.abort();
 }
 
+
 /**
- * @param {Microstructure} compound 
- * @param {CompoundData} compoundData 
+ * @param {Microstructure} compound
  */
-export function complementMutationHandling(compound, compoundData) {
+export function complementMutationHandling(compound) {
+  const dataMap = compoundDataRegistry.get(compound);
+
+  // const /** @type MicrostructureData */ rawCompoundData = dataMap.get('raw');
+  const /** @type CompoundData */ compoundData = dataMap.get('secured');
+
+  // get the custom-element type's statically served observed attributes array.
   const { observedAttributes = [] } = (compound.constructor ?? {});
 
   const additionalAttributes = [

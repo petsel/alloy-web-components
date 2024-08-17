@@ -35,11 +35,11 @@
 
       <alloy-page
         role="page"
-        traits="routed fetching"
+        traits="routed fetches triggers"
         paths="/"
         fetch='/data/api/v1/home'
         fetch-options='{ "headers": {} }'
-        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
+        triggers=':event(intersect[root="closest(#scrollArea)"][rootMargin="0px"][threshold="1"])'
       >
         <h3>Homepage</h3>
         <p>
@@ -49,11 +49,11 @@
 
       <alloy-page
         role="page"
-        traits="routed fetching"
+        traits="routed fetches triggers"
         paths="/bands"
         fetch="/data/api/v1/bands"
         fetch-options='{ "headers": {} }'
-        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
+        triggers=":event(ca-path-change):state(-ca-has-matching-path)"
       >
         <h3>Band Overview Ppage</h3>
         <p>
@@ -64,7 +64,7 @@
       <!--
       <alloy-page
         role="page"
-        traits="routed fetching"
+        traits="routed fetches triggers"
         paths="'/bands/:band','/bands/:band'"
         fetch="/data/api/v1/bands/:band"
         fetch-options='{ "headers": {} }'
@@ -76,12 +76,12 @@
 
       <alloy-page
         role="page"
-        traits="routed fetching"
+        traits="routed fetches triggers"
         paths="/events"
         fetch="/data/api/v1/events"
         fetch-options='{ "headers": {} }'
-        fetch-triggers=":event(ca-path-change):state(-ca-has-matching-path)"
         fetch-target=":event(ca-path-change):state(-ca-has-matching-path)"
+        triggers=":event(ca-path-change):state(-ca-has-matching-path)"
       >
       <h3>Event Overview Ppage</h3>
       <p>
@@ -92,7 +92,7 @@
       <!--
       <alloy-page
         role="page"
-        traits="routed fetching"
+        traits="routed fetches triggers"
         paths="/events/:event"
         fetch="/data/api/v1/events/:event"
         fetch-options='{ "headers": {} }'

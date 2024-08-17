@@ -3,7 +3,7 @@ import { BaseAlloy, alloy, interconnect } from './base/alloy';
 /**
  * @class
  *  @extends Microstructure
- *  @protected {MicrostructureData} compoundData
+ *  @protected {CompoundData} compoundData
  */
 export class App extends BaseAlloy {
 
@@ -24,7 +24,7 @@ export class App extends BaseAlloy {
    */
   constructor(connect) {
 
-    const /** @type MicrostructureData */ compoundData = {};
+    const /** @type CompoundData */ compoundData = Object.create(null);
 
     super(alloy.bind(compoundData));
 

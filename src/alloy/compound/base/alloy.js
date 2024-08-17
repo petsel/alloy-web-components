@@ -12,25 +12,9 @@ import { event as trustedEvent } from './trusted';
 
 const { Event, CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
 
-/** @type RemixBrowserHistory */ 
-const browserHistory = createBrowserHistory();
-
-/** @type Map<Microstructure, Map<string, MicrostructureData>> */
-export const compoundRegistry = new WeakMap;
-
-
-function handleCompoundLifeCycleEvent(evt) {
-  // debugger;
-  if (!isTrustedOwnEvent(evt)) {
-
-    evt.stopPropagation();
-    evt.stopImmediatePropagation();
-  }
-}
-
 
 /**
- * @param {MicrostructureData} compoundData
+ * @param {CompoundData} compoundData
  * @param {Function} connectSuper
  * @param {Function} connectCompound
  */
@@ -58,12 +42,73 @@ export const interconnect = handleCompoundDataAssignement;
 
 /**
  * @this {Microstructure}
- * @param {MicrostructureData} [compoundData={}]
+ * @param {CompoundData} [compoundData={}]
  */
-function bindCompoundData(compoundData = {}) {
-  Object.assign(this, compoundData);
+function bindAndSecureCompoundData(compoundData = {}) {
+  createPartiallySecuredCompoundData(this, compoundData);
 }
-export const alloy = bindCompoundData;
+export const alloy = bindAndSecureCompoundData;
+
+
+function handleCompoundLifeCycleEvent(evt) {
+  // debugger;
+  if (!isTrustedOwnEvent(evt)) {
+
+    evt.stopPropagation();
+    evt.stopImmediatePropagation();
+  }
+}
+
+/** @type RemixBrowserHistory */ 
+const browserHistory = createBrowserHistory();
+
+/** @type Map<Microstructure, Map<string, Object>> */
+export const compoundDataRegistry = new WeakMap;
+
+/** @type Map<Microstructure, Map<string, Object>> */
+const compoundRegistry = new WeakMap;
+
+
+/**
+ * @param {CompoundData} compoundData
+ * @param {MicrostructureData} rawData
+ * @returns {CompoundData}
+ */
+function createPartiallySecuredCompoundData(compoundData, rawData) {
+
+  Reflect.defineProperty(compoundData, 'state', {
+    enumerable: true,
+    get: () => rawData.state,
+  });
+  Reflect.defineProperty(compoundData, 'traits', {
+    enumerable: true,
+    get: () => rawData.traits,
+  });
+
+  Reflect.defineProperty(compoundData, 'trusted', {
+    enumerable: true,
+    get: () => rawData.trusted,
+  });
+  Reflect.defineProperty(compoundData, 'internals', {
+    enumerable: true,
+    get: () => rawData.internals,
+  });
+  Reflect.defineProperty(compoundData, 'history', {
+    enumerable: true,
+    get: () => rawData.history,
+  });
+
+  Reflect.defineProperty(compoundData, 'appliedTraits', {
+    enumerable: true,
+    get: () => new Map([...rawData.appliedTraits.entries()]),
+  });
+  Reflect.defineProperty(compoundData, 'observedAttrNames', {
+    enumerable: true,
+    get: () => new Set([...rawData.observedAttrNames.values()]),
+  });
+
+  return Object.freeze(compoundData);
+}
 
 
 /**
@@ -88,16 +133,16 @@ export const alloy = bindCompoundData;
  * @class
  *  @extends HTMLElement
  *  @protected {CompoundData} compoundData
- *  @protected {MicrostructureData} microstructureData
  */
 class Microstructure extends HTMLElement {
 
   #state;
   #traits;
+
   #trusted;
   #internals;
-
   #history;
+
   #appliedTraits;
   #observedAttrNames;
 
@@ -110,104 +155,114 @@ class Microstructure extends HTMLElement {
   constructor(connect) {
     super();
 
-    const compound = this;
-    const /** @type DataObject */ compoundState = Object.assign(
+    const /** @type Microstructure */ compound = this;
 
-      // - the compound's protected, shared compound-specific
-      //   state throughout the compound's entire livetime,
-      //   regardless of either compund-type sub-classing
-      //   or trait/mixin based compund-type composition.
-
-      Object.create(null), {
- 
-        // - assign some initial key value pairs if necessary.
-      },
-    );
+    /**
+     *  - the compound's protected, shared compound-specific
+     *    state throughout the compound's entire livetime,
+     *    regardless of either compund-type sub-classing
+     *    or trait/mixin based compund-type composition.
+     */
+    const /** @type DataObject */ compoundState =
+      Object.create(null);
 
     /*
     // - assure some compatibility across element internals features. 
     withElementInternalsSham.call(compound);
     */
 
-    const /** @type TrustedOptions */ trustedOptions = Object.freeze({
-      event: trustedEvent,
-    });
+    const /** @type TrustedOptions */ trustedOptions =
+      Object.freeze({
+        event: trustedEvent,
+      });
+
     const /** @type ElementInternals */ elementInternals =
       attachInternals(compound);
 
-    const /** @type CompoundData */ compoundData = Object.freeze(
+    const /** @type MicrostructureData */ rawCompoundData =
       Object.assign(
         Object.create(null), {
 
           state: compoundState,
+          /**
+           * - A map which holds data that is specific to each applied trait.
+           * - Such data gets created and added to this map only in case a
+           *   trait does rely on it during the compound's entire livetime.
+           */
           traits: new Map,
+
           trusted: trustedOptions,
           internals: elementInternals,
-
           history: browserHistory,
+
           /**
-           * - The set of yet to be collected and 
-           *   going to be observed attribute names.
-           * - Throughout the entire instantiation
-           *   process, which creates a chain of
-           *   prototypes, this property's value
-           *   gets aggregated while being channeled
-           *   through every involved constructor.
-           * - The fully aggregated set of attribute-
-           *   names, gets automatically assigned as
-           *   array to the static `observedAttributes`
+           * - The map of yet to be acquired and applied traits.
+           * - At the `Microstructure` type's instantiation level this
+           *   value gets aggregated with each trait application.
+           */
+          appliedTraits: new Map,
+          /**
+           * - The set of yet to be collected and  going to be observed
+           *   attribute names.
+           * - Throughout the entire instantiation process, which creates
+           *   a chain of prototypes, this property's value gets aggregated
+           *   while being channeled through every involved constructor.
+           * - The fully aggregated set of attribute-names, gets assigned
+           *   automatically as array to the static `observedAttributes`
            *   field of the latest involved sub-class.
            */
           observedAttrNames: new Set,
         },
-      ),
-    );
+      );
 
-    // - `acquireTraits` reads and applies all of a compound's further
-    //   charcteistics/traits/mixins/roles/behaviors by reading each
-    //   its corresponding name from the compound's `traits` attribute.
+    const /** @type CompoundData */ compoundData =
+      createPartiallySecuredCompoundData(Object.create(null), rawCompoundData);
 
-    const /** @type TraitSet */ appliedTraits =
-      acquireTraits(compound, compoundData, /* customTraitLookup, */);
+    compoundDataRegistry.set(compound, new Map([
+      ['raw', rawCompoundData],
+      ['secured', compoundData],
+    ]));
 
-    enableWaiAria(compound, compoundData /* , customAriaConfig */);
+    /**
+     * - `acquireTraits` reads and applies all of a compound's further
+     *   charcteistics/traits/mixins/roles/behaviors by reading each
+     *   its corresponding name from the compound's `traits` attribute.
+     */
+    acquireTraits(compound/*, customTraitLookup */);
 
-    complementMutationHandling(compound, compoundData);
+    enableWaiAria(compound/*, customAriaConfig */);
 
-    const /** @type MicrostructureData */ microstructureData = Object.freeze(
-      Object.assign(
-        Object.create(null),
-        compoundData,
-        { appliedTraits },
-      ),
-    );
+    complementMutationHandling(compound);
+
     compoundRegistry.set(
       compound,
       new Map([
 
         ['state', compoundState],
-        ['traits', compoundData.traits],
+        ['traits', rawCompoundData.traits],
+
         ['trusted', trustedOptions],
         ['internals', elementInternals],
-
         ['history', browserHistory],
-        ['appliedTraits', appliedTraits],
-        ['observedAttrNames', compoundData.observedAttrNames],
+
+        ['appliedTraits', rawCompoundData.appliedTraits],
+        ['observedAttrNames', rawCompoundData.observedAttrNames],
       ]),
     );
     if (isFunction(connect)) {
 
-      connect(microstructureData);
+      connect(compoundData);
     } else {
       const { state, traits, trusted, internals, history, appliedTraits, observedAttrNames }
-        = microstructureData;
+        = rawCompoundData;
 
       this.#state = state;
       this.#traits = traits;
       this.#trusted = trusted;
-      this.#internals = internals;
 
+      this.#internals = internals;
       this.#history = history;
+
       this.#appliedTraits = appliedTraits;
       this.#observedAttrNames = observedAttrNames;
 
