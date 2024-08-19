@@ -18,6 +18,10 @@ export function isString(value) {
   return (exposeInternalTypeSignature(value) === '[object String]');
 }*/
 
+export function isHTMLElement(value) {
+  return (exposeInternalTypeSignature(value) === '[object HTMLElement]');
+}
+
 export function isHTMLAnchorElement(value) {
   return (exposeInternalTypeSignature(value) === '[object HTMLAnchorElement]');
 }
