@@ -45,13 +45,13 @@
         paths="/"
         fetch='/data/api/v1/home'
         fetch-options='{ "headers": {} }'
-        triggers=':event(intersect[root="closest(#scrollArea)"][rootMargin="0px"][threshold="1"])'
+        triggers=':event(intersection[root="closest(#scrollArea)"][rootMargin="0px"][threshold="1"])'
       >
         <h3>Homepage</h3>
         <p>
           Homepage content
         </p>
-      </alloy-page>
+      </alloy-page><!--
 
       <alloy-page
         role="page"
@@ -67,7 +67,7 @@
         </p>
       </alloy-page>
 
-      <!--
+      < !--
       <alloy-page
         role="page"
         traits="routed fetches triggers"
@@ -78,7 +78,7 @@
       >
         specifc band page
       </alloy-page>
-      -->
+      -- >
 
       <alloy-page
         role="page"
@@ -95,7 +95,7 @@
       </p>
       </alloy-page>
 
-      <!--
+      < !--
       <alloy-page
         role="page"
         traits="routed fetches triggers"

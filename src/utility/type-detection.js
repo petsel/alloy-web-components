@@ -32,4 +32,3 @@ export function isHtmlLinkElement(value) {
 export function isAbortController(value) {
   return (exposeInternalTypeSignature(value) === '[object AbortController]');
 }
-

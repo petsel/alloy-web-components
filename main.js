@@ -20,7 +20,7 @@ document.addEventListener(
       console.log('+++ Total Render Time ...', performance.now() , ' +++')
   );
 
-debugger;
+//debugger;
 // new (BaseAlloy.from(HTMLElement));
 // // new (BaseAlloy.from(HTMLButtonElement));
 
@@ -28,14 +28,14 @@ debugger;
 class TestElement extends HTMLElement {
   constructor() {
     super();
-debugger;
+//debugger;
     this.foo = 'FOO';
   }
 }
 
 class AlloyButton extends HTMLButtonElement {
   constructor() {
-    debugger;
+//    debugger;
     super();
     console.log('+++ BUTTON +++');
   }

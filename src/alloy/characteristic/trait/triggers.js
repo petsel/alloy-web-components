@@ -1,3 +1,4 @@
+import { isFunction } from '../../../utility/type-detection';
 import { execute as executeSafely } from '../../../utility/try-catch';
 import { event as trustedEvent } from '../../compound/base/trusted';
 
@@ -5,28 +6,166 @@ import { event as trustedEvent } from '../../compound/base/trusted';
 const { CustomEvent, isTrustedOwn: isTrustedOwnEvent } = trustedEvent;
 
 
-// intersect[root="closest(#scrollArea[data-foo="bar"])"]
-// intersect[root="closest(#scrollArea[data-foo="bar"])"][rootMargin="0px"][threshold="1"][threshold="1"]
-// intersect[rootMargin="0px"][root="closest(#scrollArea[data-foo="bar"])"][threshold="1"]
-// intersect[rootMargin="0px"][root="closest(#scrollArea[data-foo="bar"])"]
-// intersect[root="closest(#scrollArea[data-foo=])"]
-// intersect[rootMargin="0px"]
-// intersect
-//
-//
-// ^intersect\b
-//
-// ^intersect(?:\[.*?\](?=\[|$)){1,3}
-//
-// \[.*?\](?=\[|$)
+function spliceFirstBalancedParenthesesContent(value) {
+  const [leftContent, ...rest] = value.split('(');
 
-function parseIntersectionObserverOptions() {
+  // no match guard.
+  if (!rest) {
+    return [value];
+  }
+  value = rest.join('(');
 
+  const regXMilling = /.*?(?<!\\)(\(|\))/g;
+  const openingChar = '(';
+  const closingChar = ')';
+  const countLookup = new Map([ [openingChar, 1], [closingChar, -1] ]);
+
+  let balanceCount = 1;
+  let result, char;
+ 
+  while (balanceCount && (result = regXMilling.exec(value))) {
+    char = result.at(1);
+    balanceCount = balanceCount + countLookup.get(char);
+  }
+  return [
+    leftContent,
+    value.slice(0, (regXMilling.lastIndex - 1)),
+    value.slice(regXMilling.lastIndex),
+  ];
+}
+
+function parseElementQueryFromSelectorValue(selectorValue) {
+  let elementQuery;
+
+  const regXClosest = /^closest\(/;
+  if (regXClosest.test(selectorValue)) {
+
+    const [left, closestSelector, right] =
+      spliceFirstBalancedParenthesesContent(selectorValue);
+
+    elementQuery = (function queryClosest(selector, elementNode) {
+      return elementNode.closest(selector);
+    }).bind(null, closestSelector);
+
+  } else {
+
+    elementQuery = (function queryDocument(selector, elementNode) {
+      return document.querySelector(selector);
+    }).bind(null, selectorValue);
+  }
+  return elementQuery;
 }
 
 
+function aggregateIntersectionOptions(options, [key, value]/*, idx, arr*/) {
+  options[key] = (key === 'root')
 
-function parseEventConfigrations(value) {
+    ? parseElementQueryFromSelectorValue(value)
+    : value;
+
+  return options; 
+}
+
+
+function registerIntersectionObserver(compound, observerOptions) {
+  debugger;
+
+  const callback = (listOfRecords => {
+    debugger;
+    console.log({ listOfRecords });
+  });
+  const observer = new IntersectionObserver(callback, observerOptions);
+  
+  observer.observe(compound);
+}
+
+// (#scrollArea\)[data-foo="bar"]:not([foobar]):is()):not([foo]:is(bar))
+// 
+// intersection[root=closest(#scrollArea[data-foo="bar"])][root="closest(#scrollArea[data-foo="bar"])"][root="closest(#scrollArea[data-foo="bar"])"]
+// intersection[root='closest(#scrollArea[data-foo="bar"])']
+// intersection[root="closest(#scrollArea[data-foo="bar"])"][rootMargin="0px"][threshold="1"][threshold="1"]
+// intersection[rootMargin="0px"][root="closest(#scrollArea[data-foo="bar"])"][threshold="1"]
+// intersection[rootMargin="0px"][root="closest(#scrollArea[data-foo="bar"])"]
+// intersection[root="closest(#scrollArea[data-foo=])"]
+// intersection[rootMargin="0px"]
+// intersection
+// 
+// 
+// 
+// ^intersection\b
+// 
+// ^intersection(?:\[.*?\](?=\[|$)){1,3}
+// 
+// 
+// \[.*?\](?=\[|$)
+// 
+// /\[(?<key>root|rootMargin|threshold)=(?:(?<unquotedValue>[^"'].*?[^"'])\](?=\[|$)|(?<quote>["'])(?<quotedValue>.*?)\k<quote>\](?=\[|$))/img
+// 
+// [root="closest(#scrollArea[data-foo=bar\=][data-foo="bar\="])"] => ="[^"]+?([^=]|\\=)"
+// 
+// 
+// .*?(?<!\\)(?<match>\(|\))
+//
+function applyIntersectionTriggerPoint(compound, compoundData, optionsConfig, filterConfig) {
+  const keyLookup = new Map([
+    ['root', 'root'],
+    ['rootmargin', 'rootMargin'],
+    ['threshold', 'threshold'],
+  ]);
+  const regXOptions =
+    /\[(?<key>root|rootMargin|threshold)=(?:(?<unquotedValue>[^"'].*?[^"'])\](?=\[|$)|(?<quote>["'])(?<quotedValue>.*?)\k<quote>\](?=\[|$))/img;
+
+  const options = [...optionsConfig.matchAll(regXOptions)]
+    .map(({ groups: { key, quotedValue, unquotedValue } }) =>
+      [keyLookup.get(key.toLowerCase()), (quotedValue || unquotedValue)]
+    )
+    .reduce(aggregateIntersectionOptions, {});
+
+  options.root = isFunction(options.root) && options.root(compound) || null;
+
+  debugger;
+
+  registerIntersectionObserver(compound, options);
+}
+
+function applyFirstAppearanceTriggerPoint(compound, compoundData, eventConfig, filterConfig) {
+  debugger;
+}
+
+function applyDomEventTriggerPoint(compound, compoundData, eventConfig, filterConfig) {
+  debugger;
+}
+
+
+function applyEventBasedTriggerPoint({ event: eventConfig, filter: filterConfig }) {
+  const { compound, compoundData } = this;
+
+  const regXIsFirstAppearance = /^first-appearance\b/;
+  const regXIntersectionOptions = /^intersection(?<options>(?:\[.*?\](?=\[|$)){1,3})/i
+
+  if (regXIsFirstAppearance.test(eventConfig)) {
+    debugger;
+
+    applyFirstAppearanceTriggerPoint(compound, compoundData, eventConfig, filterConfig);
+
+  } else if (regXIntersectionOptions.test(eventConfig)) {
+    debugger;
+
+    applyIntersectionTriggerPoint(
+      compound,
+      compoundData,
+      regXIntersectionOptions.exec(eventConfig).groups.options,
+      filterConfig,
+    );
+  } else {
+    debugger;
+
+    applyDomEventTriggerPoint(compound, compoundData, eventConfig, filterConfig);
+  }
+}
+
+
+function parseEventConfigrationsAndRest(value) {
   // - parsing of one or more trigger event/s plus each
   //    its optional css-selector based filter/matcher ...
   //
@@ -61,34 +200,18 @@ function parseEventConfigrations(value) {
 }
 
 
-function parseTriggerPointFromEventConfig(config) {
-  const regXIsIntersection = /^intersecting\b/;
-  const regXIsFirstAppearance = /^first-appearance\b/;
+function applyTriggerPoints(compound, compoundData) { 
+  const attrValue = compound.getAttribute('triggers');
 
-  return (
-    config.test(regXIsFirstAppearance) &&
-    parseFirstAppearanceTriggerPoint(config)
-  ) || (
-    config.test(regXIsIntersection) &&
-    parseIntersectionTriggerPoint(config)
-  ) || (
-    parseDomEventTriggerPoint(config)
-  );
+  const [eventConfigList, eventDiffValue] = parseEventConfigrationsAndRest(attrValue);    
+  // const [otherConfigList, otherDiffValue] = parseOtherConfigrationsAndRest(eventDiffValue);
+
+  eventConfigList
+    .forEach(applyEventBasedTriggerPoint, { compound, compoundData });/*
+
+  otherConfigList
+    .forEach(applyOtherBasedTriggerPoint, { compound, compoundData });*/
 }
-
-
-function parseTriggerPoints(value) {
-  const [eventConfigList, eventDiffValue] = parseEventConfigrations(value);
-  // const [otherConfigList, otherDiffValue] = parseOtherConfigrations(eventDiffValue);
-
-  return eventConfigList
-    .map(parseTriggerPointFromEventConfig);
-    // .concat(
-    //   otherConfigList
-    //     .map(parseTriggerPointFromOtherConfig)
-    // );
-}
-
 
 
 /**
@@ -101,6 +224,8 @@ export function withTriggers(compoundData) {
   console.log('`withTriggers`');
 
   if (compound.hasAttribute('triggers')) {
+
+    applyTriggerPoints(compound, compoundData);
 
   } else {
     console.warn(
