@@ -67,15 +67,40 @@ function aggregateIntersectionOptions(options, [key, value]/*, idx, arr*/) {
 }
 
 
-function registerIntersectionObserver(compound, observerOptions) {
-  debugger;
+function dispatchIntersection(intersectionEntry) {
+  intersectionEntry.target.dispatchEvent(
+    new CustomEvent('ca-intersection', {
+      detail: {
+        intersection: intersectionEntry,
+      },
+    }),
+  );
+}
+function handleIntersection(listOfIntersectionEntries) {
+  console.log({ listOfIntersectionEntries });
 
-  const callback = (listOfRecords => {
-    debugger;
-    console.log({ listOfRecords });
-  });
-  const observer = new IntersectionObserver(callback, observerOptions);
-  
+  listOfIntersectionEntries.forEach(dispatchIntersection)
+}
+
+function disconnectObserverAndAbort(observer, controller, evt) {
+  debugger;
+  if (isTrustedOwnEvent(evt)) {
+
+    observer.disconnect();
+    controller.abort();
+  }
+}
+
+function registerIntersectionObserver(compound, observerOptions) {
+  const controller = new AbortController;
+  const { signal } = controller;
+
+  const observer = new IntersectionObserver(handleIntersection, observerOptions);
+  const disconnect = disconnectObserverAndAbort.bind(null, observer, controller);
+
+  compound.addEventListener('ca-adopted', disconnect, { signal });
+  compound.addEventListener('ca-disconnected', disconnect, { signal });
+
   observer.observe(compound);
 }
 
@@ -121,11 +146,11 @@ function applyIntersectionTriggerPoint(compound, compoundData, optionsConfig, fi
     )
     .reduce(aggregateIntersectionOptions, {});
 
+  // debugger;
+
   options.root = isFunction(options.root) && options.root(compound) || null;
 
-  debugger;
-
-  registerIntersectionObserver(compound, options);
+  registerIntersectionObserver(compound, options);  
 }
 
 function applyFirstAppearanceTriggerPoint(compound, compoundData, eventConfig, filterConfig) {
@@ -144,12 +169,12 @@ function applyEventBasedTriggerPoint({ event: eventConfig, filter: filterConfig 
   const regXIntersectionOptions = /^intersection(?<options>(?:\[.*?\](?=\[|$)){1,3})/i
 
   if (regXIsFirstAppearance.test(eventConfig)) {
-    debugger;
+    // debugger;
 
     applyFirstAppearanceTriggerPoint(compound, compoundData, eventConfig, filterConfig);
 
   } else if (regXIntersectionOptions.test(eventConfig)) {
-    debugger;
+    // debugger;
 
     applyIntersectionTriggerPoint(
       compound,
@@ -158,7 +183,7 @@ function applyEventBasedTriggerPoint({ event: eventConfig, filter: filterConfig 
       filterConfig,
     );
   } else {
-    debugger;
+    // debugger;
 
     applyDomEventTriggerPoint(compound, compoundData, eventConfig, filterConfig);
   }
