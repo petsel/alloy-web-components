@@ -256,20 +256,20 @@ class Microstructure extends HTMLElement {
       const { state, traits, trusted, internals, history, appliedTraits, observedAttrNames }
         = rawCompoundData;
 
-      this.#state = state;
-      this.#traits = traits;
-      this.#trusted = trusted;
+      compound.#state = state;
+      compound.#traits = traits;
+      compound.#trusted = trusted;
 
-      this.#internals = internals;
-      this.#history = history;
+      compound.#internals = internals;
+      compound.#history = history;
 
-      this.#appliedTraits = appliedTraits;
-      this.#observedAttrNames = observedAttrNames;
+      compound.#appliedTraits = appliedTraits;
+      compound.#observedAttrNames = observedAttrNames;
 
-      if (this.hasAttribute('role')) {
-        this.#internals.role = this.getAttribute('role').trim();
+      if (compound.hasAttribute('role')) {
+        compound.#internals.role = compound.getAttribute('role').trim();
       }
-      this.#state.compoundName = this.localName;
+      compound.#state.compoundName = compound.localName;
 
       console.log('Microstructure ...', {
         state, traits, trusted, internals, history, appliedTraits, observedAttrNames,
@@ -281,20 +281,97 @@ class Microstructure extends HTMLElement {
     compound.addEventListener('ca-attr-changed', handleCompoundLifeCycleEvent);
   }
 
+  #expectedInitialAttrCount = null;
+  #currentInitialAttrCount = 0;
+  #isRootInitialized = false;
+  #isConnected = false;
+
+  attributeChangedCallback(name, recent, current) {
+    const compound = this;
+
+    if (compound.#expectedInitialAttrCount === null) {
+
+      // - the earliest point at which one can be informed
+      //   about the processing of the component's root.
+
+      compound.dispatchEvent(
+        new Event('ca-before-connected'/*, {
+
+          // bubbles: false, cancelable: false, composed: false,
+          //
+          // - since the above present the default options,
+          //   one does not need to provide them explicitly.
+  
+        }*/),
+      );
+      const observedSet = new Set(compound.constructor.observedAttributes ?? []);
+      const attrNameSet = new Set(compound.getAttributeNames());
+
+      // console.log([...attrNameSet.intersection(observedSet)]);
+
+      compound.#expectedInitialAttrCount = [...attrNameSet.intersection(observedSet)].length;
+      compound.#isRootInitialized = compound.#currentInitialAttrCount >= compound.#expectedInitialAttrCount;
+    }
+
+    compound.dispatchEvent(
+      new CustomEvent('ca-attr-changed', {
+        detail: {
+          name,
+          value: {
+            recent,
+            current,
+          },
+          isConnected: compound.#isConnected,
+          isInitialized: compound.#isRootInitialized,
+        },
+      }),
+    );
+
+    if (!compound.#isRootInitialized) {
+      if (++compound.#currentInitialAttrCount >= compound.#expectedInitialAttrCount) {
+
+        compound.#isRootInitialized = true;
+
+        compound.dispatchEvent(
+          new Event('ca-root-initialized'),
+        );
+      }
+    }
+  }
+
   connectedCallback() {
-    this.dispatchEvent(
-      new Event('ca-connected'/*, {
+    const compound = this;
+    
+    if (compound.#expectedInitialAttrCount === null) {
 
-        // bubbles: false, cancelable: false, composed: false,
-        //
-        // - since the above present the default options,
-        //   one does not need to provide them explicitly.
+      // - with no observed attributes one has to sham both events,
+      //   `ca-before-connected` as well as `ca-root-initialized`.
 
-      }*/),
+      compound.#expectedInitialAttrCount = 0;
+
+      compound.dispatchEvent(
+        new Event('ca-before-connected'),
+      );
+      if (!compound.#isRootInitialized) {
+
+        compound.#isRootInitialized = true;
+
+        compound.dispatchEvent(
+          new Event('ca-root-initialized'),
+        );
+      }
+    }
+    compound.#isConnected = true;
+
+    compound.dispatchEvent(
+      new Event('ca-connected'),
     );
   }
+
   disconnectedCallback() {
     const compound = this;
+
+    compound.#isConnected = false;
 
     compound.dispatchEvent(
       new Event('ca-disconnected'),
@@ -308,6 +385,8 @@ class Microstructure extends HTMLElement {
   adoptedCallback() {
     const compound = this;
 
+    compound.#isConnected = false;
+
     compound.dispatchEvent(
       new Event('ca-adopted'),
     );
@@ -316,19 +395,6 @@ class Microstructure extends HTMLElement {
 
     compoundDataRegistry.delete(compound);
     // compoundRegistry.delete(compound);
-  }
-  attributeChangedCallback(name, recent, current) {
-    this.dispatchEvent(
-      new CustomEvent('ca-attr-changed', {
-        detail: {
-          name,
-          value: {
-            recent,
-            current,
-          },
-        },
-      }),
-    );
   }/*
 
   getState() {
